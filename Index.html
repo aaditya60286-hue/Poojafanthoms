@@ -69,14 +69,38 @@
   }
   .van-mark{
     flex-shrink:0;
-    animation: drive 3.2s ease-in-out infinite;
+    overflow:visible;
   }
-  @keyframes drive{
+  .van-mark .van-body{
+    animation: bodyBounce 0.6s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .van-mark .wheel{
+    animation: wheelSpin 0.5s linear infinite;
+  }
+  .van-mark .speedline{
+    transform-box: fill-box;
+    transform-origin: right center;
+    animation: speedPulse 0.6s ease-in-out infinite;
+  }
+  .van-mark .sl1{ animation-delay: 0s; }
+  .van-mark .sl2{ animation-delay: 0.12s; }
+  .van-mark .sl3{ animation-delay: 0.24s; }
+  @keyframes bodyBounce{
     0%, 100%{ transform: translateY(0); }
-    50%{ transform: translateY(-1.5px); }
+    50%{ transform: translateY(-0.6px); }
+  }
+  @keyframes wheelSpin{
+    0%{ transform: rotate(0deg); }
+    100%{ transform: rotate(-360deg); }
+  }
+  @keyframes speedPulse{
+    0%, 100%{ transform: scaleX(1); opacity:0.9; }
+    50%{ transform: scaleX(0.55); opacity:0.35; }
   }
   @media (prefers-reduced-motion: reduce){
-    .van-mark{ animation:none; }
+    .van-mark .van-body, .van-mark .wheel, .van-mark .speedline{ animation:none; }
   }
   .navlinks{display:flex; gap:32px; align-items:center;}
   .navlinks a{color:rgba(255,255,255,0.78); font-size:15px; font-weight:500; transition:color .15s;}
@@ -309,17 +333,27 @@
     <div class="logo">
       <svg class="van-mark" width="38" height="38" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <rect width="40" height="40" rx="11" fill="#FF5E2C"/>
-        <line x1="2.5" y1="14.5" x2="6.5" y2="14.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity="0.9"/>
-        <line x1="1.5" y1="18" x2="7" y2="18" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity="0.75"/>
-        <line x1="2.5" y1="21.5" x2="6" y2="21.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
-        <rect x="9" y="12.5" width="17" height="11.5" rx="1.6" fill="#fff"/>
-        <path d="M26 15.5 H31.5 C32.6 15.5 33.5 16.4 33.5 17.5 V21.5 C33.5 22.6 32.6 23.5 31.5 23.5 H26 V15.5 Z" fill="#fff"/>
-        <rect x="27.4" y="17" width="4.4" height="3.6" rx="0.8" fill="#131E36"/>
-        <rect x="9" y="20.7" width="24.5" height="2.8" fill="#131E36" opacity="0.06"/>
-        <circle cx="14.5" cy="25.3" r="3.3" fill="#131E36"/>
-        <circle cx="14.5" cy="25.3" r="1.2" fill="#fff"/>
-        <circle cx="28" cy="25.3" r="3.3" fill="#131E36"/>
-        <circle cx="28" cy="25.3" r="1.2" fill="#fff"/>
+        <line class="speedline sl1" x1="2.5" y1="14.5" x2="6.5" y2="14.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+        <line class="speedline sl2" x1="1.5" y1="18" x2="7" y2="18" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+        <line class="speedline sl3" x1="2.5" y1="21.5" x2="6" y2="21.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+        <g class="van-body">
+          <rect x="9" y="12.5" width="17" height="11.5" rx="1.6" fill="#fff"/>
+          <path d="M26 15.5 H31.5 C32.6 15.5 33.5 16.4 33.5 17.5 V21.5 C33.5 22.6 32.6 23.5 31.5 23.5 H26 V15.5 Z" fill="#fff"/>
+          <rect x="27.4" y="17" width="4.4" height="3.6" rx="0.8" fill="#131E36"/>
+          <rect x="9" y="20.7" width="24.5" height="2.8" fill="#131E36" opacity="0.06"/>
+        </g>
+        <g class="wheel" style="transform-origin:14.5px 25.3px">
+          <circle cx="14.5" cy="25.3" r="3.3" fill="#131E36"/>
+          <circle cx="14.5" cy="25.3" r="1.2" fill="#fff"/>
+          <line x1="14.5" y1="23" x2="14.5" y2="27.6" stroke="#FF5E2C" stroke-width="0.7"/>
+          <line x1="12.2" y1="25.3" x2="16.8" y2="25.3" stroke="#FF5E2C" stroke-width="0.7"/>
+        </g>
+        <g class="wheel" style="transform-origin:28px 25.3px">
+          <circle cx="28" cy="25.3" r="3.3" fill="#131E36"/>
+          <circle cx="28" cy="25.3" r="1.2" fill="#fff"/>
+          <line x1="28" y1="23" x2="28" y2="27.6" stroke="#FF5E2C" stroke-width="0.7"/>
+          <line x1="25.7" y1="25.3" x2="30.3" y2="25.3" stroke="#FF5E2C" stroke-width="0.7"/>
+        </g>
       </svg>
       P FANTHOMS
     </div>
@@ -572,17 +606,27 @@
         <div class="logo" style="margin-bottom:14px;">
           <svg class="van-mark" width="34" height="34" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <rect width="40" height="40" rx="11" fill="#FF5E2C"/>
-            <line x1="2.5" y1="14.5" x2="6.5" y2="14.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity="0.9"/>
-            <line x1="1.5" y1="18" x2="7" y2="18" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity="0.75"/>
-            <line x1="2.5" y1="21.5" x2="6" y2="21.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
-            <rect x="9" y="12.5" width="17" height="11.5" rx="1.6" fill="#fff"/>
-            <path d="M26 15.5 H31.5 C32.6 15.5 33.5 16.4 33.5 17.5 V21.5 C33.5 22.6 32.6 23.5 31.5 23.5 H26 V15.5 Z" fill="#fff"/>
-            <rect x="27.4" y="17" width="4.4" height="3.6" rx="0.8" fill="#131E36"/>
-            <rect x="9" y="20.7" width="24.5" height="2.8" fill="#131E36" opacity="0.06"/>
-            <circle cx="14.5" cy="25.3" r="3.3" fill="#131E36"/>
-            <circle cx="14.5" cy="25.3" r="1.2" fill="#fff"/>
-            <circle cx="28" cy="25.3" r="3.3" fill="#131E36"/>
-            <circle cx="28" cy="25.3" r="1.2" fill="#fff"/>
+            <line class="speedline sl1" x1="2.5" y1="14.5" x2="6.5" y2="14.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+            <line class="speedline sl2" x1="1.5" y1="18" x2="7" y2="18" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+            <line class="speedline sl3" x1="2.5" y1="21.5" x2="6" y2="21.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+            <g class="van-body">
+              <rect x="9" y="12.5" width="17" height="11.5" rx="1.6" fill="#fff"/>
+              <path d="M26 15.5 H31.5 C32.6 15.5 33.5 16.4 33.5 17.5 V21.5 C33.5 22.6 32.6 23.5 31.5 23.5 H26 V15.5 Z" fill="#fff"/>
+              <rect x="27.4" y="17" width="4.4" height="3.6" rx="0.8" fill="#131E36"/>
+              <rect x="9" y="20.7" width="24.5" height="2.8" fill="#131E36" opacity="0.06"/>
+            </g>
+            <g class="wheel" style="transform-origin:14.5px 25.3px">
+              <circle cx="14.5" cy="25.3" r="3.3" fill="#131E36"/>
+              <circle cx="14.5" cy="25.3" r="1.2" fill="#fff"/>
+              <line x1="14.5" y1="23" x2="14.5" y2="27.6" stroke="#FF5E2C" stroke-width="0.7"/>
+              <line x1="12.2" y1="25.3" x2="16.8" y2="25.3" stroke="#FF5E2C" stroke-width="0.7"/>
+            </g>
+            <g class="wheel" style="transform-origin:28px 25.3px">
+              <circle cx="28" cy="25.3" r="3.3" fill="#131E36"/>
+              <circle cx="28" cy="25.3" r="1.2" fill="#fff"/>
+              <line x1="28" y1="23" x2="28" y2="27.6" stroke="#FF5E2C" stroke-width="0.7"/>
+              <line x1="25.7" y1="25.3" x2="30.3" y2="25.3" stroke="#FF5E2C" stroke-width="0.7"/>
+            </g>
           </svg>
           P FANTHOMS
         </div>
