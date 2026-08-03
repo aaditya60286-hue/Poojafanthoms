@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get your instant price — P Fanthoms</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='11' fill='%23FF5E2C'/%3E%3Crect x='9' y='12.5' width='17' height='11.5' rx='1.6' fill='%23fff'/%3E%3Cpath d='M26 15.5 H31.5 C32.6 15.5 33.5 16.4 33.5 17.5 V21.5 C33.5 22.6 32.6 23.5 31.5 23.5 H26 V15.5 Z' fill='%23fff'/%3E%3Crect x='27.4' y='17' width='4.4' height='3.6' rx='0.8' fill='%23131E36'/%3E%3Ccircle cx='14.5' cy='25.3' r='3.3' fill='%23131E36'/%3E%3Ccircle cx='28' cy='25.3' r='3.3' fill='%23131E36'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --navy:#131E36; --navy-2:#1C2B4D; --orange:#FF5E2C; --orange-dark:#E44A1B;
+    --yellow:#FFC23C; --sand:#FBF5EC; --green:#1E8F5F; --ink:#181818; --paper:#FFFFFF; --line:rgba(19,30,54,0.12);
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; font-family:'Space Grotesk', sans-serif; background:var(--sand); color:var(--ink); -webkit-font-smoothing:antialiased; }
+  h1,h2,h3{ font-family:'Archivo Black', sans-serif; line-height:1.05; margin:0; letter-spacing:-0.01em; }
+  a{ color:inherit; text-decoration:none; }
+  .wrap{ max-width:840px; margin:0 auto; padding:0 24px; }
+  button{ font-family:inherit; }
+  a:focus-visible, button:focus-visible{ outline:3px solid var(--orange); outline-offset:2px; }
+
+  /* header */
+  header{ background:var(--navy); border-bottom:3px solid var(--orange); padding:16px 0; }
+  .head-row{ display:flex; align-items:center; justify-content:space-between; }
+  .logo{ display:flex; align-items:center; gap:10px; color:#fff; font-family:'Archivo Black',sans-serif; font-size:19px; }
+  .logo svg{ flex-shrink:0; }
+  .back-link{ color:rgba(255,255,255,0.7); font-size:14px; display:flex; align-items:center; gap:6px; }
+  .back-link:hover{ color:#fff; }
+
+  /* progress */
+  .progress-wrap{ padding:28px 0 0; }
+  .progress-steps{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .pstep{ flex:1; height:6px; border-radius:100px; background:var(--line); }
+  .pstep.done{ background:var(--orange); }
+  .progress-label{ font-family:'IBM Plex Mono',monospace; font-size:12px; color:#888; text-transform:uppercase; letter-spacing:0.05em; }
+
+  main{ padding:28px 0 80px; }
+  .panel{ display:none; }
+  .panel.active{ display:block; animation:fadein .25s ease; }
+  @keyframes fadein{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  .panel h2{ font-size:28px; color:var(--navy); margin-bottom:8px; }
+  .panel .sub{ font-size:15px; color:#666; margin-bottom:26px; }
+
+  /* category tabs */
+  .cat-tabs{ display:flex; gap:10px; margin-bottom:20px; }
+  .cat-tab{ padding:9px 18px; border-radius:100px; border:1.5px solid var(--line); background:#fff; font-size:14px; font-weight:600; color:#666; cursor:pointer; }
+  .cat-tab.active{ background:var(--navy); border-color:var(--navy); color:#fff; }
+
+  /* item grid */
+  .item-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .item-card{ background:#fff; border:2px solid var(--line); border-radius:16px; padding:18px 14px; text-align:center; cursor:pointer; transition:border-color .15s, transform .1s; position:relative; }
+  .item-card:hover{ transform:translateY(-2px); }
+  .item-card.selected{ border-color:var(--orange); background:#FFF4EE; }
+  .item-card .ic{ font-size:32px; margin-bottom:8px; }
+  .item-card .lbl{ font-size:13.5px; font-weight:600; color:var(--navy); }
+  .item-card .check{ position:absolute; top:8px; right:8px; width:20px; height:20px; border-radius:50%; background:var(--orange); color:#fff; display:none; align-items:center; justify-content:center; font-size:12px; }
+  .item-card.selected .check{ display:flex; }
+  @media (max-width:600px){ .item-grid{ grid-template-columns:repeat(2,1fr); } }
+
+  /* vehicle grid */
+  .veh-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+  .veh-card{ background:#fff; border:2px solid var(--line); border-radius:18px; padding:24px; cursor:pointer; transition:border-color .15s, transform .1s; }
+  .veh-card:hover{ transform:translateY(-2px); }
+  .veh-card.selected{ border-color:var(--orange); background:#FFF4EE; }
+  .veh-card .ic{ font-size:40px; margin-bottom:10px; }
+  .veh-card .lbl{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:17px; color:var(--navy); margin-bottom:4px; }
+  .veh-card .desc{ font-size:13px; color:#777; line-height:1.5; }
+  .other-input{ margin-top:14px; }
+  .other-input input{ width:100%; padding:13px 16px; border-radius:12px; border:1.5px solid var(--line); font-size:15px; font-family:inherit; }
+  @media (max-width:600px){ .veh-grid{ grid-template-columns:1fr; } }
+
+  /* address form */
+  .addr-field{ margin-bottom:20px; }
+  .addr-field label{ display:block; font-size:13px; font-weight:600; color:var(--navy); margin-bottom:8px; }
+  .addr-field input{ width:100%; padding:14px 16px; border-radius:12px; border:1.5px solid var(--line); font-size:15px; font-family:inherit; background:#fff; }
+  .addr-field input:focus{ outline:none; border-color:var(--orange); }
+
+  /* summary */
+  .summary-card{ background:var(--navy); border-radius:20px; padding:30px; color:#fff; }
+  .summary-row{ display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.12); font-size:14.5px; }
+  .summary-row:last-of-type{ border-bottom:none; }
+  .summary-row .k{ color:rgba(255,255,255,0.6); }
+  .summary-row .v{ font-weight:600; text-align:right; max-width:60%; }
+  .price-box{ background:linear-gradient(135deg, var(--yellow), #FFD866); border-radius:14px; padding:20px; margin-top:20px; display:flex; align-items:baseline; justify-content:space-between; }
+  .price-box span{ font-size:13px; font-weight:600; color:var(--navy); opacity:.8; }
+  .price-box b{ font-family:'Archivo Black',sans-serif; font-size:34px; color:var(--navy); }
+
+  /* nav buttons */
+  .nav-btns{ display:flex; justify-content:space-between; margin-top:32px; gap:14px; }
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:14px 26px; border-radius:10px; font-weight:600; font-size:15px; border:none; cursor:pointer; transition:transform .12s ease, box-shadow .12s ease; }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn-primary{ background:var(--orange); color:#fff; box-shadow:0 4px 0 var(--orange-dark); }
+  .btn-primary:hover{ box-shadow:0 6px 0 var(--orange-dark); }
+  .btn-primary:disabled{ background:#ddd; box-shadow:none; cursor:not-allowed; transform:none; color:#999; }
+  .btn-ghost{ background:#fff; color:var(--navy); border:1.5px solid var(--line); }
+  .btn-ghost:hover{ border-color:var(--navy); }
+
+  .selected-count{ font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--orange-dark); margin-top:18px; }
+
+  /* confirmation */
+  .confirm-box{ text-align:center; padding:50px 20px; }
+  .confirm-box .bigcheck{ width:74px; height:74px; border-radius:50%; background:var(--green); display:flex; align-items:center; justify-content:center; margin:0 auto 22px; }
+  .confirm-box h2{ font-size:28px; color:var(--navy); margin-bottom:10px; }
+  .confirm-box p{ font-size:15px; color:#666; max-width:400px; margin:0 auto 26px; line-height:1.6; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap head-row">
+    <div class="logo">
+      <svg width="30" height="30" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="40" height="40" rx="11" fill="#FF5E2C"/>
+        <rect x="9" y="12.5" width="17" height="11.5" rx="1.6" fill="#fff"/>
+        <path d="M26 15.5 H31.5 C32.6 15.5 33.5 16.4 33.5 17.5 V21.5 C33.5 22.6 32.6 23.5 31.5 23.5 H26 V15.5 Z" fill="#fff"/>
+        <rect x="27.4" y="17" width="4.4" height="3.6" rx="0.8" fill="#131E36"/>
+        <circle cx="14.5" cy="25.3" r="3.3" fill="#131E36"/><circle cx="14.5" cy="25.3" r="1.2" fill="#fff"/>
+        <circle cx="28" cy="25.3" r="3.3" fill="#131E36"/><circle cx="28" cy="25.3" r="1.2" fill="#fff"/>
+      </svg>
+      P FANTHOMS
+    </div>
+    <a href="index.html" class="back-link">← Back to site</a>
+  </div>
+</header>
+
+<div class="wrap progress-wrap">
+  <div class="progress-steps">
+    <div class="pstep done" id="pstep-1"></div>
+    <div class="pstep" id="pstep-2"></div>
+    <div class="pstep" id="pstep-3"></div>
+    <div class="pstep" id="pstep-4"></div>
+  </div>
+  <div class="progress-label" id="progress-label">Step 1 of 4 — What's moving</div>
+</div>
+
+<main class="wrap">
+
+  <!-- STEP 1: ITEMS -->
+  <section class="panel active" id="panel-1">
+    <h2>What are you moving?</h2>
+    <p class="sub">Select everything that applies — you can pick as many as you need.</p>
+    <div class="cat-tabs">
+      <button class="cat-tab active" data-cat="household">🏠 Household</button>
+      <button class="cat-tab" data-cat="business">🏢 Business</button>
+    </div>
+
+    <div class="item-grid" id="grid-household">
+      <div class="item-card" data-item="Sofa"><span class="check">✓</span><div class="ic">🛋️</div><div class="lbl">Sofa</div></div>
+      <div class="item-card" data-item="Bed & mattress"><span class="check">✓</span><div class="ic">🛏️</div><div class="lbl">Bed &amp; mattress</div></div>
+      <div class="item-card" data-item="Wardrobe"><span class="check">✓</span><div class="ic">🚪</div><div class="lbl">Wardrobe</div></div>
+      <div class="item-card" data-item="Fridge / freezer"><span class="check">✓</span><div class="ic">🧊</div><div class="lbl">Fridge / freezer</div></div>
+      <div class="item-card" data-item="Washing machine"><span class="check">✓</span><div class="ic">🌀</div><div class="lbl">Washing machine</div></div>
+      <div class="item-card" data-item="TV & electronics"><span class="check">✓</span><div class="ic">📺</div><div class="lbl">TV &amp; electronics</div></div>
+      <div class="item-card" data-item="Dining table & chairs"><span class="check">✓</span><div class="ic">🪑</div><div class="lbl">Dining table &amp; chairs</div></div>
+      <div class="item-card" data-item="Boxes"><span class="check">✓</span><div class="ic">📦</div><div class="lbl">Boxes</div></div>
+      <div class="item-card" data-item="Bike"><span class="check">✓</span><div class="ic">🚲</div><div class="lbl">Bike</div></div>
+    </div>
+
+    <div class="item-grid" id="grid-business" style="display:none;">
+      <div class="item-card" data-item="Pallet"><span class="check">✓</span><div class="ic">🧱</div><div class="lbl">Pallet</div></div>
+      <div class="item-card" data-item="Office desk & chair"><span class="check">✓</span><div class="ic">🪑</div><div class="lbl">Office desk &amp; chair</div></div>
+      <div class="item-card" data-item="Filing cabinet"><span class="check">✓</span><div class="ic">🗄️</div><div class="lbl">Filing cabinet</div></div>
+      <div class="item-card" data-item="Retail stock boxes"><span class="check">✓</span><div class="ic">🛍️</div><div class="lbl">Retail stock boxes</div></div>
+      <div class="item-card" data-item="Parcels / packages"><span class="check">✓</span><div class="ic">📮</div><div class="lbl">Parcels / packages</div></div>
+      <div class="item-card" data-item="Equipment / tools"><span class="check">✓</span><div class="ic">🧰</div><div class="lbl">Equipment / tools</div></div>
+    </div>
+
+    <div class="selected-count" id="selected-count">0 items selected</div>
+    <div class="nav-btns">
+      <span></span>
+      <button class="btn btn-primary" id="to-step-2" disabled>Continue →</button>
+    </div>
+  </section>
+
+  <!-- STEP 2: VEHICLE -->
+  <section class="panel" id="panel-2">
+    <h2>Choose your vehicle</h2>
+    <p class="sub">Not sure? Pick your best guess — we'll confirm the right size when you book.</p>
+    <div class="veh-grid">
+      <div class="veh-card" data-veh="Car" data-price="0">
+        <div class="ic">🚗</div><div class="lbl">Car</div>
+        <div class="desc">A few small boxes or bags, nothing bulky.</div>
+      </div>
+      <div class="veh-card" data-veh="Small van" data-price="10">
+        <div class="ic">🚐</div><div class="lbl">Small van</div>
+        <div class="desc">A sofa, a few boxes, or a single large item.</div>
+      </div>
+      <div class="veh-card" data-veh="Large van" data-price="25">
+        <div class="ic">🚚</div><div class="lbl">Large van</div>
+        <div class="desc">A room's worth of furniture or several pallets.</div>
+      </div>
+      <div class="veh-card" data-veh="Luton / truck" data-price="40">
+        <div class="ic">🚛</div><div class="lbl">Luton / truck</div>
+        <div class="desc">A full house move or a large business load.</div>
+      </div>
+      <div class="veh-card" data-veh="Other" data-price="15">
+        <div class="ic">❓</div><div class="lbl">Other</div>
+        <div class="desc">Not listed? Tell us what you need.</div>
+      </div>
+    </div>
+    <div class="other-input" id="other-input-wrap" style="display:none;">
+      <input type="text" id="other-vehicle-text" placeholder="Describe what you need moved, e.g. 'a piano' or 'a motorbike'">
+    </div>
+    <div class="nav-btns">
+      <button class="btn btn-ghost" id="back-to-1">← Back</button>
+      <button class="btn btn-primary" id="to-step-3" disabled>Continue →</button>
+    </div>
+  </section>
+
+  <!-- STEP 3: ADDRESSES -->
+  <section class="panel" id="panel-3">
+    <h2>Where's it going?</h2>
+    <p class="sub">Enter the pickup and drop-off addresses or postcodes.</p>
+    <div class="addr-field">
+      <label>📍 Picking up from</label>
+      <input type="text" id="from-address" placeholder="e.g. 14 High Street, Manchester, M1 2AB">
+    </div>
+    <div class="addr-field">
+      <label>🏁 Dropping off at</label>
+      <input type="text" id="to-address" placeholder="e.g. 22 Park Road, Leeds, LS1 4DT">
+    </div>
+    <div class="nav-btns">
+      <button class="btn btn-ghost" id="back-to-2">← Back</button>
+      <button class="btn btn-primary" id="to-step-4" disabled>See my price →</button>
+    </div>
+  </section>
+
+  <!-- STEP 4: SUMMARY -->
+  <section class="panel" id="panel-4">
+    <h2>Your instant price</h2>
+    <p class="sub">Here's what we've put together — nothing's booked until you confirm.</p>
+    <div class="summary-card">
+      <div class="summary-row"><span class="k">Items</span><span class="v" id="sum-items">—</span></div>
+      <div class="summary-row"><span class="k">Vehicle</span><span class="v" id="sum-vehicle">—</span></div>
+      <div class="summary-row"><span class="k">From</span><span class="v" id="sum-from">—</span></div>
+      <div class="summary-row"><span class="k">To</span><span class="v" id="sum-to">—</span></div>
+      <div class="price-box"><span>Your price</span><b id="sum-price">£0.00</b></div>
+    </div>
+    <div class="nav-btns">
+      <button class="btn btn-ghost" id="back-to-3">← Back</button>
+      <button class="btn btn-primary" id="confirm-booking">Confirm booking</button>
+    </div>
+  </section>
+
+  <!-- CONFIRMATION -->
+  <section class="panel" id="panel-5">
+    <div class="confirm-box">
+      <div class="bigcheck"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>
+      <h2>You're booked in!</h2>
+      <p>We're matching you with a vetted local courier now. You'll get a confirmation with your courier's details and live tracking shortly.</p>
+      <a href="index.html" class="btn btn-primary">Back to home</a>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  const state = { items: [], vehicle: null, vehiclePrice: 0, otherText: '', from: '', to: '' };
+  const panels = [1,2,3,4,5];
+  const steps = document.querySelectorAll('.pstep');
+  const label = document.getElementById('progress-label');
+  const labels = {
+    1: "Step 1 of 4 — What's moving",
+    2: 'Step 2 of 4 — Choose your vehicle',
+    3: 'Step 3 of 4 — Pickup & drop-off',
+    4: 'Step 4 of 4 — Your price',
+    5: 'Booked'
+  };
+
+  function showPanel(n){
+    panels.forEach(p => document.getElementById('panel-'+p).classList.toggle('active', p === n));
+    steps.forEach((s, i) => s.classList.toggle('done', i < n));
+    label.textContent = labels[n] || '';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  // STEP 1: category tabs
+  document.querySelectorAll('.cat-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const cat = tab.dataset.cat;
+      document.getElementById('grid-household').style.display = cat === 'household' ? 'grid' : 'none';
+      document.getElementById('grid-business').style.display = cat === 'business' ? 'grid' : 'none';
+    });
+  });
+
+  // STEP 1: item selection
+  document.querySelectorAll('.item-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const item = card.dataset.item;
+      card.classList.toggle('selected');
+      if (card.classList.contains('selected')) {
+        state.items.push(item);
+      } else {
+        state.items = state.items.filter(i => i !== item);
+      }
+      document.getElementById('selected-count').textContent = state.items.length + (state.items.length === 1 ? ' item selected' : ' items selected');
+      document.getElementById('to-step-2').disabled = state.items.length === 0;
+    });
+  });
+  document.getElementById('to-step-2').addEventListener('click', () => showPanel(2));
+
+  // STEP 2: vehicle selection
+  document.querySelectorAll('.veh-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.veh-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      state.vehicle = card.dataset.veh;
+      state.vehiclePrice = parseInt(card.dataset.price, 10);
+      document.getElementById('other-input-wrap').style.display = state.vehicle === 'Other' ? 'block' : 'none';
+      document.getElementById('to-step-3').disabled = false;
+    });
+  });
+  document.getElementById('other-vehicle-text').addEventListener('input', (e) => { state.otherText = e.target.value; });
+  document.getElementById('back-to-1').addEventListener('click', () => showPanel(1));
+  document.getElementById('to-step-3').addEventListener('click', () => showPanel(3));
+
+  // STEP 3: addresses
+  const fromInput = document.getElementById('from-address');
+  const toInput = document.getElementById('to-address');
+  function checkAddresses(){
+    document.getElementById('to-step-4').disabled = !(fromInput.value.trim() && toInput.value.trim());
+  }
+  fromInput.addEventListener('input', checkAddresses);
+  toInput.addEventListener('input', checkAddresses);
+  document.getElementById('back-to-2').addEventListener('click', () => showPanel(2));
+  document.getElementById('to-step-4').addEventListener('click', () => {
+    state.from = fromInput.value.trim();
+    state.to = toInput.value.trim();
+    buildSummary();
+    showPanel(4);
+  });
+
+  function buildSummary(){
+    document.getElementById('sum-items').textContent = state.items.join(', ');
+    let vehLabel = state.vehicle;
+    if (state.vehicle === 'Other' && state.otherText) vehLabel = 'Other — ' + state.otherText;
+    document.getElementById('sum-vehicle').textContent = vehLabel;
+    document.getElementById('sum-from').textContent = state.from;
+    document.getElementById('sum-to').textContent = state.to;
+    const price = 15 + (state.items.length * 4) + state.vehiclePrice;
+    document.getElementById('sum-price').textContent = '£' + price.toFixed(2);
+  }
+
+  document.getElementById('back-to-3').addEventListener('click', () => showPanel(3));
+  document.getElementById('confirm-booking').addEventListener('click', () => showPanel(5));
+</script>
+
+</body>
+</html>
