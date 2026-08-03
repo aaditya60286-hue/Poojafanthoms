@@ -75,6 +75,14 @@
   .addr-field label{ display:block; font-size:13px; font-weight:600; color:var(--navy); margin-bottom:8px; }
   .addr-field input{ width:100%; padding:14px 16px; border-radius:12px; border:1.5px solid var(--line); font-size:15px; font-family:inherit; background:#fff; }
   .addr-field input:focus{ outline:none; border-color:var(--orange); }
+  .pc-row{ display:flex; gap:10px; }
+  .pc-row input{ flex:1; text-transform:uppercase; }
+  .pc-check-btn{ padding:14px 20px; white-space:nowrap; }
+  .pc-status{ font-size:13.5px; margin-top:9px; min-height:18px; font-weight:600; }
+  .pc-status.ok{ color:var(--green); }
+  .pc-status.bad{ color:var(--orange-dark); }
+  .pc-status.loading{ color:#999; }
+  .street-input{ margin-top:12px; }
 
   /* summary */
   .summary-card{ background:var(--navy); border-radius:20px; padding:30px; color:#fff; }
@@ -211,15 +219,28 @@
   <!-- STEP 3: ADDRESSES -->
   <section class="panel" id="panel-3">
     <h2>Where's it going?</h2>
-    <p class="sub">Enter the pickup and drop-off addresses or postcodes.</p>
+    <p class="sub">Enter a UK postcode first — we'll check it's real, then you can add the rest of the address.</p>
+
     <div class="addr-field">
-      <label>📍 Picking up from</label>
-      <input type="text" id="from-address" placeholder="e.g. 14 High Street, Manchester, M1 2AB">
+      <label>📍 Picking up from — postcode</label>
+      <div class="pc-row">
+        <input type="text" id="from-postcode" placeholder="e.g. M1 2AB" autocapitalize="characters">
+        <button type="button" class="btn btn-ghost pc-check-btn" id="from-postcode-check">Check</button>
+      </div>
+      <div class="pc-status" id="from-postcode-status"></div>
+      <input type="text" id="from-street" class="street-input" style="display:none;" placeholder="House number and street name">
     </div>
+
     <div class="addr-field">
-      <label>🏁 Dropping off at</label>
-      <input type="text" id="to-address" placeholder="e.g. 22 Park Road, Leeds, LS1 4DT">
+      <label>🏁 Dropping off at — postcode</label>
+      <div class="pc-row">
+        <input type="text" id="to-postcode" placeholder="e.g. LS1 4DT" autocapitalize="characters">
+        <button type="button" class="btn btn-ghost pc-check-btn" id="to-postcode-check">Check</button>
+      </div>
+      <div class="pc-status" id="to-postcode-status"></div>
+      <input type="text" id="to-street" class="street-input" style="display:none;" placeholder="House number and street name">
     </div>
+
     <div class="nav-btns">
       <button class="btn btn-ghost" id="back-to-2">← Back</button>
       <button class="btn btn-primary" id="to-step-4" disabled>See my price →</button>
@@ -317,18 +338,77 @@
   document.getElementById('back-to-1').addEventListener('click', () => showPanel(1));
   document.getElementById('to-step-3').addEventListener('click', () => showPanel(3));
 
-  // STEP 3: addresses
-  const fromInput = document.getElementById('from-address');
-  const toInput = document.getElementById('to-address');
-  function checkAddresses(){
-    document.getElementById('to-step-4').disabled = !(fromInput.value.trim() && toInput.value.trim());
+  // STEP 3: postcode validation via postcodes.io (free, keyless UK postcode lookup)
+  const pcState = {
+    from: { valid:false, area:'', postcode:'' },
+    to:   { valid:false, area:'', postcode:'' }
+  };
+
+  function normalisePostcode(raw){
+    return raw.trim().toUpperCase().replace(/\s+/g,' ');
   }
-  fromInput.addEventListener('input', checkAddresses);
-  toInput.addEventListener('input', checkAddresses);
+
+  async function checkPostcode(which){
+    const input = document.getElementById(which + '-postcode');
+    const status = document.getElementById(which + '-postcode-status');
+    const streetInput = document.getElementById(which + '-street');
+    const pc = normalisePostcode(input.value);
+
+    if (!pc){
+      status.textContent = 'Enter a postcode first.';
+      status.className = 'pc-status bad';
+      return;
+    }
+
+    status.textContent = 'Checking postcode…';
+    status.className = 'pc-status loading';
+    streetInput.style.display = 'none';
+    pcState[which].valid = false;
+    updateStep3Button();
+
+    try {
+      const res = await fetch('https://api.postcodes.io/postcodes/' + encodeURIComponent(pc.replace(/\s+/g,'')));
+      const data = await res.json();
+
+      if (data.status === 200 && data.result) {
+        const r = data.result;
+        const area = [r.post_town, r.admin_district, r.region].filter(Boolean).join(', ');
+        status.textContent = '✓ Valid postcode — ' + area;
+        status.className = 'pc-status ok';
+        streetInput.style.display = 'block';
+        pcState[which].valid = true;
+        pcState[which].area = area;
+        pcState[which].postcode = r.postcode;
+      } else {
+        status.textContent = "That doesn't look like a real UK postcode — please check it.";
+        status.className = 'pc-status bad';
+      }
+    } catch (err) {
+      status.textContent = "Couldn't verify that postcode — check your connection and try again.";
+      status.className = 'pc-status bad';
+    }
+    updateStep3Button();
+  }
+
+  function updateStep3Button(){
+    const fromStreet = document.getElementById('from-street').value.trim();
+    const toStreet = document.getElementById('to-street').value.trim();
+    const ready = pcState.from.valid && pcState.to.valid && fromStreet && toStreet;
+    document.getElementById('to-step-4').disabled = !ready;
+  }
+
+  document.getElementById('from-postcode-check').addEventListener('click', () => checkPostcode('from'));
+  document.getElementById('to-postcode-check').addEventListener('click', () => checkPostcode('to'));
+  document.getElementById('from-street').addEventListener('input', updateStep3Button);
+  document.getElementById('to-street').addEventListener('input', updateStep3Button);
+  // also allow pressing Enter in the postcode field to trigger the check
+  document.getElementById('from-postcode').addEventListener('keydown', (e) => { if (e.key === 'Enter'){ e.preventDefault(); checkPostcode('from'); } });
+  document.getElementById('to-postcode').addEventListener('keydown', (e) => { if (e.key === 'Enter'){ e.preventDefault(); checkPostcode('to'); } });
+
   document.getElementById('back-to-2').addEventListener('click', () => showPanel(2));
   document.getElementById('to-step-4').addEventListener('click', () => {
-    state.from = fromInput.value.trim();
-    state.to = toInput.value.trim();
+    state.from = document.getElementById('from-street').value.trim() + ', ' + pcState.from.area + ', ' + pcState.from.postcode;
+    state.to = document.getElementById('to-street').value.trim() + ', ' + pcState.to.area + ', ' + pcState.to.postcode;
     buildSummary();
     showPanel(4);
   });
