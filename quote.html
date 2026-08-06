@@ -341,6 +341,27 @@
   document.getElementById('back-to-1').addEventListener('click', () => showPanel(1));
   document.getElementById('to-step-3').addEventListener('click', () => showPanel(3));
 
+  // Pre-fill from homepage service tile links, e.g. quote.html?cat=business&item=Pallet&veh=Large%20van
+  (function prefillFromURL(){
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get('cat');
+    const item = params.get('item');
+    const veh = params.get('veh');
+
+    if (cat === 'business') {
+      const businessTab = document.querySelector('.cat-tab[data-cat="business"]');
+      if (businessTab) businessTab.click();
+    }
+    if (item) {
+      const card = document.querySelector('.item-card[data-item="' + CSS.escape(item) + '"]');
+      if (card) card.click();
+    }
+    if (veh) {
+      const vcard = document.querySelector('.veh-card[data-veh="' + CSS.escape(veh) + '"]');
+      if (vcard) vcard.click();
+    }
+  })();
+
   // STEP 3: real UK address lookup via Ideal Postcodes (Royal Mail PAF licensed data)
   const IDEAL_POSTCODES_API_KEY = 'ak_mshxcvhbyvOCkBTHcruw7X23hBMcI';
   const pcState = {
