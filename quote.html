@@ -258,6 +258,7 @@
       <div class="summary-row"><span class="k">Vehicle</span><span class="v" id="sum-vehicle">—</span></div>
       <div class="summary-row"><span class="k">From</span><span class="v" id="sum-from">—</span></div>
       <div class="summary-row"><span class="k">To</span><span class="v" id="sum-to">—</span></div>
+      <div class="summary-row"><span class="k">Distance</span><span class="v" id="sum-distance">—</span></div>
       <div class="price-box"><span>Your price</span><b id="sum-price">£0.00</b></div>
     </div>
     <div class="nav-btns">
@@ -343,8 +344,8 @@
   // STEP 3: real UK address lookup via Ideal Postcodes (Royal Mail PAF licensed data)
   const IDEAL_POSTCODES_API_KEY = 'ak_mshxcvhbyvOCkBTHcruw7X23hBMcI';
   const pcState = {
-    from: { valid:false, chosenAddress:'' },
-    to:   { valid:false, chosenAddress:'' }
+    from: { valid:false, chosenAddress:'', lat:null, lng:null },
+    to:   { valid:false, chosenAddress:'', lat:null, lng:null }
   };
 
   function normalisePostcode(raw){
@@ -388,7 +389,12 @@
         select.innerHTML = '<option value="" disabled selected>Select your address…</option>' +
           addresses.map((a, i) => '<option value="' + i + '">' + formatAddress(a) + '</option>').join('');
         select.style.display = 'block';
-        select.dataset.addresses = JSON.stringify(addresses.map(formatAddress));
+        // keep full address + coordinates for distance-based pricing, not just the display string
+        select.dataset.addresses = JSON.stringify(addresses.map(a => ({
+          text: formatAddress(a),
+          lat: a.latitude,
+          lng: a.longitude
+        })));
 
       } else if (res.status === 404) {
         status.textContent = "That postcode wasn't found — please check it and try again.";
@@ -410,7 +416,9 @@
     const idx = select.value;
     if (idx !== '' && addresses[idx]) {
       pcState[which].valid = true;
-      pcState[which].chosenAddress = addresses[idx];
+      pcState[which].chosenAddress = addresses[idx].text;
+      pcState[which].lat = addresses[idx].lat;
+      pcState[which].lng = addresses[idx].lng;
     } else {
       pcState[which].valid = false;
     }
@@ -420,6 +428,18 @@
   function updateStep3Button(){
     const ready = pcState.from.valid && pcState.to.valid;
     document.getElementById('to-step-4').disabled = !ready;
+  }
+
+  // Haversine formula: straight-line distance in miles between two lat/lng points
+  function distanceMiles(lat1, lng1, lat2, lng2){
+    if (lat1 == null || lng1 == null || lat2 == null || lng2 == null) return null;
+    const R = 3958.8; // Earth radius in miles
+    const toRad = d => d * Math.PI / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
   }
 
   document.getElementById('from-postcode-check').addEventListener('click', () => findAddresses('from'));
@@ -445,7 +465,14 @@
     document.getElementById('sum-vehicle').textContent = vehLabel;
     document.getElementById('sum-from').textContent = state.from;
     document.getElementById('sum-to').textContent = state.to;
-    const price = 15 + (state.items.length * 4) + state.vehiclePrice;
+
+    const miles = distanceMiles(pcState.from.lat, pcState.from.lng, pcState.to.lat, pcState.to.lng);
+    const distanceCharge = miles != null ? Math.round(miles * 1.1) : 0;
+    const distanceLabel = document.getElementById('sum-distance');
+    if (distanceLabel) {
+      distanceLabel.textContent = miles != null ? miles.toFixed(1) + ' miles' : 'Unavailable';
+    }
+    const price = 15 + (state.items.length * 4) + state.vehiclePrice + distanceCharge;
     document.getElementById('sum-price').textContent = '£' + price.toFixed(2);
   }
 
