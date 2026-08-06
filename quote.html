@@ -83,6 +83,8 @@
   .pc-status.bad{ color:var(--orange-dark); }
   .pc-status.loading{ color:#999; }
   .street-input{ margin-top:12px; }
+  .addr-select{ width:100%; margin-top:12px; padding:14px 16px; border-radius:12px; border:1.5px solid var(--line); font-size:15px; font-family:inherit; background:#fff; color:var(--navy); }
+  .addr-select:focus{ outline:none; border-color:var(--orange); }
 
   /* summary */
   .summary-card{ background:var(--navy); border-radius:20px; padding:30px; color:#fff; }
@@ -219,26 +221,26 @@
   <!-- STEP 3: ADDRESSES -->
   <section class="panel" id="panel-3">
     <h2>Where's it going?</h2>
-    <p class="sub">Enter a UK postcode first — we'll check it's real, then you can add the rest of the address.</p>
+    <p class="sub">Enter a UK postcode and pick your exact address from the list.</p>
 
     <div class="addr-field">
       <label>📍 Picking up from — postcode</label>
       <div class="pc-row">
         <input type="text" id="from-postcode" placeholder="e.g. M1 2AB" autocapitalize="characters">
-        <button type="button" class="btn btn-ghost pc-check-btn" id="from-postcode-check">Check</button>
+        <button type="button" class="btn btn-ghost pc-check-btn" id="from-postcode-check">Find address</button>
       </div>
       <div class="pc-status" id="from-postcode-status"></div>
-      <input type="text" id="from-street" class="street-input" style="display:none;" placeholder="House number and street name">
+      <select id="from-address-select" class="addr-select" style="display:none;"></select>
     </div>
 
     <div class="addr-field">
       <label>🏁 Dropping off at — postcode</label>
       <div class="pc-row">
         <input type="text" id="to-postcode" placeholder="e.g. LS1 4DT" autocapitalize="characters">
-        <button type="button" class="btn btn-ghost pc-check-btn" id="to-postcode-check">Check</button>
+        <button type="button" class="btn btn-ghost pc-check-btn" id="to-postcode-check">Find address</button>
       </div>
       <div class="pc-status" id="to-postcode-status"></div>
-      <input type="text" id="to-street" class="street-input" style="display:none;" placeholder="House number and street name">
+      <select id="to-address-select" class="addr-select" style="display:none;"></select>
     </div>
 
     <div class="nav-btns">
@@ -338,21 +340,31 @@
   document.getElementById('back-to-1').addEventListener('click', () => showPanel(1));
   document.getElementById('to-step-3').addEventListener('click', () => showPanel(3));
 
-  // STEP 3: postcode validation via postcodes.io (free, keyless UK postcode lookup)
+  // STEP 3: real UK address lookup via Ideal Postcodes (Royal Mail PAF licensed data)
+  const IDEAL_POSTCODES_API_KEY = 'ak_mshxcvhbyvOCkBTHcruw7X23hBMcI';
   const pcState = {
-    from: { valid:false, area:'', postcode:'' },
-    to:   { valid:false, area:'', postcode:'' }
+    from: { valid:false, chosenAddress:'' },
+    to:   { valid:false, chosenAddress:'' }
   };
 
   function normalisePostcode(raw){
     return raw.trim().toUpperCase().replace(/\s+/g,' ');
   }
 
-  async function checkPostcode(which){
+  function formatAddress(a){
+    return [a.line_1, a.line_2, a.line_3, a.post_town, a.postcode].filter(Boolean).join(', ');
+  }
+
+  async function findAddresses(which){
     const input = document.getElementById(which + '-postcode');
     const status = document.getElementById(which + '-postcode-status');
-    const streetInput = document.getElementById(which + '-street');
+    const select = document.getElementById(which + '-address-select');
     const pc = normalisePostcode(input.value);
+
+    select.style.display = 'none';
+    select.innerHTML = '';
+    pcState[which].valid = false;
+    updateStep3Button();
 
     if (!pc){
       status.textContent = 'Enter a postcode first.';
@@ -360,55 +372,68 @@
       return;
     }
 
-    status.textContent = 'Checking postcode…';
+    status.textContent = 'Looking up addresses…';
     status.className = 'pc-status loading';
-    streetInput.style.display = 'none';
-    pcState[which].valid = false;
-    updateStep3Button();
 
     try {
-      const res = await fetch('https://api.postcodes.io/postcodes/' + encodeURIComponent(pc.replace(/\s+/g,'')));
+      const url = 'https://api.ideal-postcodes.co.uk/v1/postcodes/' + encodeURIComponent(pc) + '?api_key=' + IDEAL_POSTCODES_API_KEY;
+      const res = await fetch(url);
       const data = await res.json();
 
-      if (data.status === 200 && data.result) {
-        const r = data.result;
-        const area = [r.post_town, r.admin_district, r.region].filter(Boolean).join(', ');
-        status.textContent = '✓ Valid postcode — ' + area;
+      if (res.ok && data.result && data.result.length > 0) {
+        const addresses = data.result;
+        status.textContent = '✓ Found ' + addresses.length + ' address' + (addresses.length === 1 ? '' : 'es') + ' — select yours below';
         status.className = 'pc-status ok';
-        streetInput.style.display = 'block';
-        pcState[which].valid = true;
-        pcState[which].area = area;
-        pcState[which].postcode = r.postcode;
+
+        select.innerHTML = '<option value="" disabled selected>Select your address…</option>' +
+          addresses.map((a, i) => '<option value="' + i + '">' + formatAddress(a) + '</option>').join('');
+        select.style.display = 'block';
+        select.dataset.addresses = JSON.stringify(addresses.map(formatAddress));
+
+      } else if (res.status === 404) {
+        status.textContent = "That postcode wasn't found — please check it and try again.";
+        status.className = 'pc-status bad';
       } else {
-        status.textContent = "That doesn't look like a real UK postcode — please check it.";
+        status.textContent = "Couldn't look up that postcode right now — please try again.";
         status.className = 'pc-status bad';
       }
     } catch (err) {
-      status.textContent = "Couldn't verify that postcode — check your connection and try again.";
+      status.textContent = "Couldn't reach the address lookup — check your connection and try again.";
       status.className = 'pc-status bad';
     }
     updateStep3Button();
   }
 
+  function onAddressSelected(which){
+    const select = document.getElementById(which + '-address-select');
+    const addresses = JSON.parse(select.dataset.addresses || '[]');
+    const idx = select.value;
+    if (idx !== '' && addresses[idx]) {
+      pcState[which].valid = true;
+      pcState[which].chosenAddress = addresses[idx];
+    } else {
+      pcState[which].valid = false;
+    }
+    updateStep3Button();
+  }
+
   function updateStep3Button(){
-    const fromStreet = document.getElementById('from-street').value.trim();
-    const toStreet = document.getElementById('to-street').value.trim();
-    const ready = pcState.from.valid && pcState.to.valid && fromStreet && toStreet;
+    const ready = pcState.from.valid && pcState.to.valid;
     document.getElementById('to-step-4').disabled = !ready;
   }
 
-  document.getElementById('from-postcode-check').addEventListener('click', () => checkPostcode('from'));
-  document.getElementById('to-postcode-check').addEventListener('click', () => checkPostcode('to'));
-  document.getElementById('from-street').addEventListener('input', updateStep3Button);
-  document.getElementById('to-street').addEventListener('input', updateStep3Button);
-  // also allow pressing Enter in the postcode field to trigger the check
-  document.getElementById('from-postcode').addEventListener('keydown', (e) => { if (e.key === 'Enter'){ e.preventDefault(); checkPostcode('from'); } });
-  document.getElementById('to-postcode').addEventListener('keydown', (e) => { if (e.key === 'Enter'){ e.preventDefault(); checkPostcode('to'); } });
+  document.getElementById('from-postcode-check').addEventListener('click', () => findAddresses('from'));
+  document.getElementById('to-postcode-check').addEventListener('click', () => findAddresses('to'));
+  document.getElementById('from-address-select').addEventListener('change', () => onAddressSelected('from'));
+  document.getElementById('to-address-select').addEventListener('change', () => onAddressSelected('to'));
+  // also allow pressing Enter in the postcode field to trigger the lookup
+  document.getElementById('from-postcode').addEventListener('keydown', (e) => { if (e.key === 'Enter'){ e.preventDefault(); findAddresses('from'); } });
+  document.getElementById('to-postcode').addEventListener('keydown', (e) => { if (e.key === 'Enter'){ e.preventDefault(); findAddresses('to'); } });
 
   document.getElementById('back-to-2').addEventListener('click', () => showPanel(2));
   document.getElementById('to-step-4').addEventListener('click', () => {
-    state.from = document.getElementById('from-street').value.trim() + ', ' + pcState.from.area + ', ' + pcState.from.postcode;
-    state.to = document.getElementById('to-street').value.trim() + ', ' + pcState.to.area + ', ' + pcState.to.postcode;
+    state.from = pcState.from.chosenAddress;
+    state.to = pcState.to.chosenAddress;
     buildSummary();
     showPanel(4);
   });
