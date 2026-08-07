@@ -98,7 +98,7 @@
     <!-- LOGGED OUT: sign in / sign up -->
     <div id="auth-view">
       <h1>Welcome</h1>
-      <p class="sub">Log in to track your deliveries or manage your jobs.</p>
+      <p class="sub" id="auth-sub">Log in to track your deliveries or manage your jobs.</p>
 
       <div class="tabs">
         <div class="tab active" id="tab-signin">Log in</div>
@@ -246,6 +246,13 @@
     showSignin();
   });
 
+  // read ?redirect= from the URL, e.g. signin.html?redirect=quote.html
+  const urlParams = new URLSearchParams(window.location.search);
+  const redirectTo = urlParams.get('redirect');
+  if (redirectTo) {
+    document.getElementById('auth-sub').textContent = 'Log in to get your instant price and book your delivery.';
+  }
+
   // SIGN IN
   document.getElementById('signin-btn').addEventListener('click', async () => {
     clearMessage();
@@ -262,7 +269,11 @@
       showMessage(error.message, 'error');
       return;
     }
-    renderAccount(data.user);
+    if (redirectTo) {
+      window.location.href = redirectTo;
+    } else {
+      renderAccount(data.user);
+    }
   });
 
   // SIGN OUT
@@ -292,7 +303,11 @@
   // check if already logged in on page load
   supabase.auth.getSession().then(({ data }) => {
     if (data.session && data.session.user) {
-      renderAccount(data.session.user);
+      if (redirectTo) {
+        window.location.href = redirectTo;
+      } else {
+        renderAccount(data.session.user);
+      }
     }
   });
 </script>
