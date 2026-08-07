@@ -113,9 +113,21 @@
   .confirm-box .bigcheck{ width:74px; height:74px; border-radius:50%; background:var(--green); display:flex; align-items:center; justify-content:center; margin:0 auto 22px; }
   .confirm-box h2{ font-size:28px; color:var(--navy); margin-bottom:10px; }
   .confirm-box p{ font-size:15px; color:#666; max-width:400px; margin:0 auto 26px; line-height:1.6; }
+
+  /* auth gate overlay */
+  #auth-gate{ position:fixed; inset:0; background:var(--sand); z-index:999; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px; }
+  #auth-gate .spinner{ width:34px; height:34px; border-radius:50%; border:3px solid var(--line); border-top-color:var(--orange); animation:spin 0.8s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  #auth-gate p{ font-size:14px; color:#888; font-family:'IBM Plex Mono',monospace; }
+  body.gated main{ visibility:hidden; }
 </style>
 </head>
-<body>
+<body class="gated">
+
+<div id="auth-gate">
+  <div class="spinner"></div>
+  <p>Checking your account…</p>
+</div>
 
 <header>
   <div class="wrap head-row">
@@ -278,6 +290,27 @@
   </section>
 
 </main>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+  const supabase = createClient(
+    'https://urdhtrsxbetijzaxlhxu.supabase.co',
+    'sb_publishable_dgxPA7kUrbNbk9q25qA0lA_Xb0n83_D'
+  );
+
+  const { data } = await supabase.auth.getSession();
+
+  if (!data.session) {
+    // not logged in — send to the login page, bring them straight back here afterwards
+    const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+    window.location.href = 'signin.html?redirect=' + returnTo;
+  } else {
+    // logged in — reveal the page
+    document.body.classList.remove('gated');
+    document.getElementById('auth-gate').style.display = 'none';
+  }
+</script>
 
 <script>
   const state = { items: [], vehicle: null, vehiclePrice: 0, otherText: '', from: '', to: '' };
