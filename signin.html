@@ -16,7 +16,7 @@
   body{ margin:0; font-family:'Space Grotesk', sans-serif; background:var(--sand); color:var(--ink); -webkit-font-smoothing:antialiased; min-height:100vh; }
   h1,h2{ font-family:'Archivo Black', sans-serif; line-height:1.05; margin:0; letter-spacing:-0.01em; }
   a{ color:inherit; text-decoration:none; }
-  .wrap{ max-width:520px; margin:0 auto; padding:0 24px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 24px; }
   button{ font-family:inherit; }
   a:focus-visible, button:focus-visible, input:focus-visible{ outline:3px solid var(--orange); outline-offset:2px; }
 
@@ -28,6 +28,7 @@
 
   main{ padding:56px 0 80px; }
   .card{ background:#fff; border-radius:22px; padding:36px 32px; box-shadow:0 20px 50px rgba(19,30,54,0.08); border:1px solid var(--line); }
+  #auth-view{ max-width:400px; margin:0 auto; }
   .card h1{ font-size:28px; color:var(--navy); margin-bottom:6px; }
   .card .sub{ font-size:14.5px; color:#777; margin-bottom:26px; }
 
@@ -72,20 +73,34 @@
   .switch-link{ text-align:center; margin-top:18px; font-size:14px; color:#777; }
   .switch-link a{ color:var(--orange-dark); font-weight:600; }
 
-  /* orders list */
-  .orders-section{ margin-top:30px; padding-top:24px; border-top:1px solid var(--line); }
-  .orders-title{ font-size:17px; color:var(--navy); margin-bottom:16px; font-family:'Space Grotesk',sans-serif; font-weight:700; }
-  .orders-loading, .orders-empty{ font-size:14px; color:#888; text-align:center; padding:20px 0; }
-  .order-card{ background:var(--sand); border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin-bottom:12px; }
-  .order-top{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
-  .order-route{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14.5px; color:var(--navy); line-height:1.4; max-width:75%; }
-  .order-price{ font-family:'Archivo Black',sans-serif; font-size:16px; color:var(--navy); white-space:nowrap; }
-  .order-meta{ font-size:12.5px; color:#888; margin-bottom:10px; }
-  .status-badge{ display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600; padding:4px 10px; border-radius:100px; }
-  .status-Booked{ background:#FFF1D6; color:#B8860B; }
-  .status-Courier-assigned{ background:#DCE8FF; color:#2A5FD6; }
-  .status-Picked-up, .status-In-transit{ background:#FFE4D6; color:var(--orange-dark); }
-  .status-Delivered{ background:#DCF3E6; color:var(--green); }
+  /* orders dashboard */
+  .orders-section{ margin-top:30px; padding-top:26px; border-top:1px solid var(--line); }
+  .orders-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; }
+  .orders-title{ font-size:19px; color:var(--navy); font-family:'Archivo Black',sans-serif; }
+  .orders-count{ font-size:12.5px; color:#999; font-family:'IBM Plex Mono',monospace; }
+  .orders-loading, .orders-empty{ font-size:14px; color:#888; text-align:center; padding:26px 0; }
+
+  .order-card{ position:relative; background:#fff; border:1px solid var(--line); border-radius:16px; padding:20px 20px 22px; margin-bottom:16px; box-shadow:0 8px 20px rgba(19,30,54,0.05); overflow:hidden; }
+  .order-card::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--accent, var(--line)); }
+  .order-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:6px; }
+  .order-route{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14.5px; color:var(--navy); line-height:1.45; }
+  .order-price{ font-family:'Archivo Black',sans-serif; font-size:18px; color:var(--navy); white-space:nowrap; flex-shrink:0; }
+  .order-meta{ font-size:12px; color:#999; font-family:'IBM Plex Mono',monospace; margin-bottom:18px; }
+
+  /* progress tracker */
+  .tracker{ position:relative; display:flex; justify-content:space-between; padding:0 2px; margin-bottom:14px; }
+  .tracker::before{ content:''; position:absolute; top:15px; left:15px; right:15px; height:2px; background:var(--line); z-index:0; }
+  .tracker::after{ content:''; position:absolute; top:15px; left:15px; height:2px; background:var(--green); z-index:1; width:var(--progress, 0%); transition:width .5s ease; }
+  .tracker-step{ position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; width:56px; }
+  .tracker-dot{ width:30px; height:30px; border-radius:50%; background:#fff; border:2px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:13px; color:#bbb; font-family:'IBM Plex Mono',monospace; }
+  .tracker-dot.done{ background:var(--green); border-color:var(--green); color:#fff; }
+  .tracker-dot.active{ background:var(--orange); border-color:var(--orange); color:#fff; box-shadow:0 0 0 5px rgba(255,94,44,0.14); }
+  .tracker-label{ font-size:9.5px; margin-top:7px; text-align:center; color:#aaa; font-family:'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:0.02em; line-height:1.3; }
+  .tracker-label.done{ color:var(--green); font-weight:600; }
+  .tracker-label.active{ color:var(--orange-dark); font-weight:700; }
+
+  .order-status-line{ font-size:13px; color:#666; padding-top:14px; border-top:1px solid var(--line); }
+  .order-status-line b{ color:var(--navy); }
 </style>
 </head>
 <body>
@@ -175,7 +190,10 @@
       <div class="account-row"><span class="k">Member since</span><span class="v" id="account-since">–</span></div>
 
       <div class="orders-section" id="customer-orders-section">
-        <h2 class="orders-title">Your orders</h2>
+        <div class="orders-head">
+          <h2 class="orders-title">Track your deliveries</h2>
+          <span class="orders-count" id="orders-count"></span>
+        </div>
         <div id="orders-list">
           <p class="orders-loading">Loading your orders…</p>
         </div>
@@ -325,8 +343,40 @@
     loadOrders(user.id);
   }
 
+  const TRACK_STAGES = ['Booked', 'Courier assigned', 'Picked up', 'In transit', 'Delivered'];
+  const STAGE_DESCRIPTIONS = {
+    'Booked': "We're matching you with a vetted local courier.",
+    'Courier assigned': 'Your courier is heading to collect your item(s).',
+    'Picked up': 'Your item(s) have been collected and are on the way.',
+    'In transit': 'Almost there — your courier is en route to the drop-off.',
+    'Delivered': 'Delivered! Thanks for booking with P Fanthoms.'
+  };
+  const STAGE_ACCENT = {
+    'Booked': '#FFC23C', 'Courier assigned': '#4A6FE0', 'Picked up': '#FF5E2C',
+    'In transit': '#FF5E2C', 'Delivered': '#1E8F5F'
+  };
+
+  function buildTracker(status){
+    const currentIndex = Math.max(0, TRACK_STAGES.indexOf(status || 'Booked'));
+    const progressPct = (currentIndex / (TRACK_STAGES.length - 1)) * 100;
+
+    const steps = TRACK_STAGES.map((stage, i) => {
+      let dotClass = '', labelClass = '', content = i + 1;
+      if (i < currentIndex) { dotClass = 'done'; labelClass = 'done'; content = '✓'; }
+      else if (i === currentIndex) { dotClass = 'active'; labelClass = 'active'; content = '🚐'; }
+      return `
+        <div class="tracker-step">
+          <div class="tracker-dot ${dotClass}">${content}</div>
+          <div class="tracker-label ${labelClass}">${stage}</div>
+        </div>`;
+    }).join('');
+
+    return `<div class="tracker" style="--progress:${progressPct}%">${steps}</div>`;
+  }
+
   async function loadOrders(userId){
     const listEl = document.getElementById('orders-list');
+    const countEl = document.getElementById('orders-count');
     listEl.innerHTML = '<p class="orders-loading">Loading your orders…</p>';
 
     const { data: orders, error } = await supabase
@@ -341,21 +391,28 @@
     }
 
     if (!orders || orders.length === 0) {
+      countEl.textContent = '';
       listEl.innerHTML = '<p class="orders-empty">No orders yet — <a href="index.html" style="color:var(--orange-dark); font-weight:600;">book your first delivery</a>.</p>';
       return;
     }
 
+    const activeCount = orders.filter(o => o.status !== 'Delivered').length;
+    countEl.textContent = orders.length + (orders.length === 1 ? ' order' : ' orders') + (activeCount ? ' · ' + activeCount + ' in progress' : '');
+
     listEl.innerHTML = orders.map(order => {
       const date = new Date(order.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
-      const statusClass = 'status-' + String(order.status || 'Booked').replace(/\s+/g, '-');
+      const status = order.status || 'Booked';
+      const accent = STAGE_ACCENT[status] || '#FFC23C';
+      const description = STAGE_DESCRIPTIONS[status] || '';
       return `
-        <div class="order-card">
+        <div class="order-card" style="--accent:${accent}">
           <div class="order-top">
             <div class="order-route">${escapeHtml(order.from_address)} → ${escapeHtml(order.to_address)}</div>
             <div class="order-price">£${Number(order.price).toFixed(2)}</div>
           </div>
           <div class="order-meta">${escapeHtml(order.vehicle || '')} · ${date}</div>
-          <span class="status-badge ${statusClass}">${escapeHtml(order.status || 'Booked')}</span>
+          ${buildTracker(status)}
+          <div class="order-status-line"><b>${escapeHtml(status)}.</b> ${escapeHtml(description)}</div>
         </div>
       `;
     }).join('');
