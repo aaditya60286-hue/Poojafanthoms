@@ -284,8 +284,11 @@
     <div class="confirm-box">
       <div class="bigcheck"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>
       <h2>You're booked in!</h2>
-      <p>We're matching you with a vetted local courier now. You'll get a confirmation with your courier's details and live tracking shortly.</p>
-      <a href="index.html" class="btn btn-primary">Back to home</a>
+      <p>We're matching you with a vetted local courier now. Track it any time from your account.</p>
+      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <a href="signin.html" class="btn btn-primary">View my orders</a>
+        <a href="index.html" class="btn btn-ghost" style="width:auto; padding:14px 26px;">Back to home</a>
+      </div>
     </div>
   </section>
 
@@ -298,6 +301,7 @@
     'https://urdhtrsxbetijzaxlhxu.supabase.co',
     'sb_publishable_dgxPA7kUrbNbk9q25qA0lA_Xb0n83_D'
   );
+  window.supabase = supabase;
 
   const { data } = await supabase.auth.getSession();
 
@@ -528,10 +532,49 @@
     }
     const price = 15 + (state.items.length * 4) + state.vehiclePrice + distanceCharge;
     document.getElementById('sum-price').textContent = '£' + price.toFixed(2);
+
+    // keep these for saving the order
+    state.finalPrice = price;
+    state.vehicleLabel = vehLabel;
   }
 
   document.getElementById('back-to-3').addEventListener('click', () => showPanel(3));
-  document.getElementById('confirm-booking').addEventListener('click', () => showPanel(5));
+
+  document.getElementById('confirm-booking').addEventListener('click', async () => {
+    const btn = document.getElementById('confirm-booking');
+    btn.disabled = true;
+    btn.textContent = 'Saving your booking…';
+
+    const { data: sessionData } = await window.supabase.auth.getSession();
+    const user = sessionData.session ? sessionData.session.user : null;
+
+    if (!user) {
+      // session expired mid-booking — send back to login, then straight back here
+      window.location.href = 'signin.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+      return;
+    }
+
+    const { error } = await window.supabase.from('orders').insert({
+      user_id: user.id,
+      items: state.items.join(', '),
+      vehicle: state.vehicleLabel,
+      from_address: state.from,
+      to_address: state.to,
+      price: state.finalPrice,
+      status: 'Booked'
+    });
+
+    if (error) {
+      btn.disabled = false;
+      btn.textContent = 'Confirm booking';
+      alert("Something went wrong saving your booking: " + error.message);
+      return;
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Confirm booking';
+    showPanel(5);
+  });
 </script>
 
 </body>
