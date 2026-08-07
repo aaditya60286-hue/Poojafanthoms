@@ -177,8 +177,11 @@
   .road-scroll::-webkit-scrollbar{ display:none; }
   .road-card{ min-width:220px; max-width:220px; border-radius:16px; overflow:hidden; flex-shrink:0; background:#1C2B4D; }
   .road-thumb{ height:270px; position:relative; display:flex; align-items:center; justify-content:center; }
-  .road-thumb .playbtn{ width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,0.92); display:flex; align-items:center; justify-content:center; }
+  .road-thumb .playbtn{ width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,0.92); display:flex; align-items:center; justify-content:center; z-index:2; position:relative; transition:opacity .15s ease; }
   .road-thumb .playbtn svg{ margin-left:3px; }
+  .road-video-wrap{ cursor:pointer; }
+  .road-video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#0C1730; }
+  .road-video-wrap.playing .playbtn{ opacity:0; }
   .road-body{ padding:14px 16px 18px; }
   .road-body .handle{ font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--yellow); margin-bottom:6px; display:block; }
   .road-body p{ font-size:13px; color:rgba(255,255,255,0.75); line-height:1.5; margin:0; }
@@ -458,9 +461,9 @@
       <p>A glimpse at what booking with P Fanthoms actually looks like.</p>
     </div>
     <div class="road-scroll">
-      <div class="road-card"><div class="road-thumb" style="background:linear-gradient(160deg,#FF5E2C,#FFC23C);"><span class="playbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#131E36"><path d="M8 5v14l11-7z"/></svg></span></div><div class="road-body"><span class="handle">@daveinleeds</span><p>Booked at 9am, sofa was at my mum's by lunch. Didn't think same-day was even possible.</p></div></div>
-      <div class="road-card"><div class="road-thumb" style="background:linear-gradient(160deg,#1E8F5F,#4A6FE0);"><span class="playbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#131E36"><path d="M8 5v14l11-7z"/></svg></span></div><div class="road-body"><span class="handle">@reema_moves</span><p>Tracked the whole thing on my phone and got a photo the second it arrived.</p></div></div>
-      <div class="road-card"><div class="road-thumb" style="background:linear-gradient(160deg,#B84AE0,#FF5E2C);"><span class="playbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#131E36"><path d="M8 5v14l11-7z"/></svg></span></div><div class="road-body"><span class="handle">@jamie_pallets</span><p>Needed a pallet moved same week — quoted and booked in under two minutes.</p></div></div>
+      <div class="road-card"><div class="road-thumb road-video-wrap"><video class="road-video" src="dave.mp4" playsinline muted loop preload="metadata"></video><span class="playbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#131E36"><path d="M8 5v14l11-7z"/></svg></span></div><div class="road-body"><span class="handle">@daveinleeds</span><p>Booked at 9am, sofa was at my mum's by lunch. Didn't think same-day was even possible.</p></div></div>
+      <div class="road-card"><div class="road-thumb road-video-wrap"><video class="road-video" src="reema.mp4" playsinline muted loop preload="metadata"></video><span class="playbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#131E36"><path d="M8 5v14l11-7z"/></svg></span></div><div class="road-body"><span class="handle">@reema_moves</span><p>Tracked the whole thing on my phone and got a photo the second it arrived.</p></div></div>
+      <div class="road-card"><div class="road-thumb road-video-wrap"><video class="road-video" src="jamie.mp4" playsinline muted loop preload="metadata"></video><span class="playbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#131E36"><path d="M8 5v14l11-7z"/></svg></span></div><div class="road-body"><span class="handle">@jamie_pallets</span><p>Needed a pallet moved same week — quoted and booked in under two minutes.</p></div></div>
       <div class="road-card"><div class="road-thumb" style="background:linear-gradient(160deg,#FFC23C,#1E8F5F);"><span class="playbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#131E36"><path d="M8 5v14l11-7z"/></svg></span></div><div class="road-body"><span class="handle">@salford_sam</span><p>Cheapest quote of the three apps I checked, and the courier was early.</p></div></div>
     </div>
   </div>
@@ -662,6 +665,23 @@
     </div>
   </div>
 </footer>
+
+<script>
+  document.querySelectorAll('.road-video-wrap').forEach(wrap => {
+    const video = wrap.querySelector('video');
+    if (!video) return;
+    wrap.addEventListener('click', () => {
+      if (video.paused) {
+        video.play();
+        wrap.classList.add('playing');
+      } else {
+        video.pause();
+        wrap.classList.remove('playing');
+      }
+    });
+    video.addEventListener('pause', () => wrap.classList.remove('playing'));
+  });
+</script>
 
 </body>
 </html>
