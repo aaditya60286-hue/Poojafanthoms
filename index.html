@@ -94,7 +94,18 @@
   .btn-ghost:hover{ border-color:#fff; }
   .btn-dark{ background:var(--navy); color:#fff; box-shadow:0 4px 0 #0a1122; }
   .signin{ color:#fff; font-size:15px; font-weight:500; }
-  @media (max-width: 940px){ .navlinks{ display:none; } }
+  .hamburger{ display:none; background:none; border:none; padding:8px; cursor:pointer; }
+  .hamburger span{ display:block; width:22px; height:2px; background:#fff; margin:5px 0; border-radius:2px; transition:transform .2s ease, opacity .2s ease; }
+  .mobile-menu{ display:none; background:var(--navy-2); border-top:1px solid rgba(255,255,255,0.1); padding:8px 0 18px; }
+  .mobile-menu.open{ display:block; }
+  .mobile-menu .wrap{ display:flex; flex-direction:column; gap:2px; }
+  .mobile-menu a{ color:rgba(255,255,255,0.85); font-size:15.5px; font-weight:500; padding:13px 0; border-bottom:1px solid rgba(255,255,255,0.08); }
+  .mobile-menu a:last-child{ border-bottom:none; }
+  @media (max-width: 940px){
+    .navlinks{ display:none; }
+    .nav-phone{ display:none; }
+    .hamburger{ display:block; }
+  }
 
   /* ---------- HERO ---------- */
   .hero{ background:var(--navy); color:#fff; padding:64px 0 60px; position:relative; overflow:hidden; }
@@ -176,6 +187,7 @@
   .review-scroll::-webkit-scrollbar{ display:none; }
   .review-card{ min-width:260px; background:#fff; border:1px solid var(--line); border-radius:14px; padding:22px; flex-shrink:0; }
   .review-card .stars{ color:var(--orange); font-size:14px; display:block; margin-bottom:10px; }
+  .review-card .example-tag{ display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:600; color:#999; background:var(--sand); padding:3px 9px; border-radius:100px; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.03em; }
   .review-card h5{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; color:var(--navy); margin:0 0 8px; }
   .review-card p{ font-size:13.5px; color:#555; line-height:1.55; margin:0; }
   .review-card .who{ margin-top:12px; font-size:12px; color:#999; }
@@ -305,6 +317,13 @@
   .press-row .label{ color:rgba(255,255,255,0.6); text-transform:none; font-family:'Space Grotesk',sans-serif; font-size:13px; margin-right:8px; }
   .foot-bottom{ display:flex; justify-content:space-between; padding-top:24px; border-top:1px solid rgba(255,255,255,0.1); flex-wrap:wrap; gap:12px; }
   @media (max-width:760px){ .foot-grid{ grid-template-columns:1fr 1fr; } }
+
+  /* ---------- COOKIE BANNER ---------- */
+  #cookie-banner{ position:fixed; left:16px; right:16px; bottom:16px; z-index:200; background:var(--navy); color:#fff; border-radius:16px; padding:18px 22px; box-shadow:0 20px 50px rgba(0,0,0,0.3); display:flex; align-items:center; gap:18px; flex-wrap:wrap; max-width:720px; margin:0 auto; }
+  #cookie-banner p{ font-size:13.5px; color:rgba(255,255,255,0.8); line-height:1.5; margin:0; flex:1; min-width:220px; }
+  #cookie-banner p a{ color:var(--yellow); font-weight:600; }
+  #cookie-banner .btn{ padding:10px 20px; font-size:14px; }
+  #cookie-banner.hidden{ display:none; }
 </style>
 </head>
 <body>
@@ -349,6 +368,18 @@
       </div>
       <a href="signin.html" class="signin">Log in</a>
       <a href="quote.html" target="_blank" rel="noopener" class="btn btn-primary">Get an instant price</a>
+      <button class="hamburger" id="hamburger-btn" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobile-menu">
+    <div class="wrap">
+      <a href="#services">Our services</a>
+      <a href="#how">How it works</a>
+      <a href="#faq">FAQs</a>
+      <a href="#compare">Pricing</a>
+      <a href="signin.html">Log in</a>
     </div>
   </div>
 </header>
@@ -356,7 +387,7 @@
 <section class="hero" style="padding-bottom:0;">
   <div class="wrap hero-grid">
     <div>
-      <div class="eyebrow"><span class="pulse"></span> 2,300+ deliveries moving right now</div>
+      <div class="eyebrow"><span class="pulse"></span> Live pricing in 60 seconds</div>
       <h1>Let's get it there <span>today.</span></h1>
       <p class="lede">Sending a parcel, clearing a spare room, or running deliveries for your shop — tell us what's moving and where, and we'll match you with a vetted local courier in minutes. Upfront price, no surprises.</p>
       <div class="badges-row">
@@ -364,7 +395,7 @@
         <span class="badge">📍 Live tracking</span>
         <span class="badge">💳 Pay after booking</span>
       </div>
-      <div class="trustline"><span class="stars">★★★★★</span><span>4.7 from 8,400+ happy customers</span></div>
+      <div class="trustline"><span>UK-wide coverage · ID-checked couriers · No call needed</span></div>
     </div>
     <div class="quote-card" aria-label="Get an instant price">
       <div class="quote-card-tag">Get your price — takes 60 seconds</div>
@@ -429,8 +460,8 @@
 <section class="carousel-section">
   <div class="wrap carousel-layout">
     <div>
-      <h2>Recent deliveries and price wins!</h2>
-      <p>Sending a parcel down the road, or moving a full van load across the country? See what other customers just paid — real prices, no hidden fees stacked on top.</p>
+      <h2>What a typical job costs</h2>
+      <p>Sending a parcel down the road, or moving a full van load across the country? Here's an idea of real-world pricing — no hidden fees stacked on top. <span style="color:#999; font-size:13px;">(example jobs for illustration)</span></p>
     </div>
     <div class="job-scroll">
       <div class="job-card">
@@ -456,14 +487,14 @@
 <section class="trust-section">
   <div class="wrap trust-layout">
     <div class="trust-block">
-      <div class="big-rating">4.7</div>
-      <div class="stars-row">★★★★★</div>
-      <p>Rated by 8,412 customers on Trustpilot</p>
+      <div class="big-rating">—</div>
+      <div class="stars-row" style="opacity:0.35;">★★★★★</div>
+      <p>Reviews coming soon — book to be one of our first</p>
     </div>
     <div class="review-scroll">
-      <div class="review-card"><span class="stars">★★★★★</span><h5>Zero surprises</h5><p>Quoted £86, charged £86. First delivery service where the price didn't creep up after booking.</p><div class="who">Dave M. — Leeds</div></div>
-      <div class="review-card"><span class="stars">★★★★★</span><h5>Delivered ahead of time</h5><p>Live tracking meant I knew exactly when to be home. Didn't expect it to be this smooth.</p><div class="who">Reema K. — Manchester</div></div>
-      <div class="review-card"><span class="stars">★★★★☆</span><h5>Cheaper than I expected</h5><p>Compared three quotes elsewhere first — this came in noticeably lower with no catch.</p><div class="who">Jamie T. — Preston</div></div>
+      <div class="review-card"><span class="example-tag">Example feedback</span><h5>Zero surprises</h5><p>"Quoted £86, charged £86. First delivery service where the price didn't creep up after booking."</p></div>
+      <div class="review-card"><span class="example-tag">Example feedback</span><h5>Delivered ahead of time</h5><p>"Live tracking meant I knew exactly when to be home. Didn't expect it to be this smooth."</p></div>
+      <div class="review-card"><span class="example-tag">Example feedback</span><h5>Cheaper than I expected</h5><p>"Compared three quotes elsewhere first — this came in noticeably lower with no catch."</p></div>
     </div>
   </div>
 </section>
@@ -471,15 +502,15 @@
 <section class="road-section">
   <div class="wrap">
     <div class="sec-head">
-      <span class="sec-eyebrow">Word on the street</span>
-      <h2>Real customers, real deliveries.</h2>
-      <p>A glimpse at what booking with P Fanthoms actually looks like.</p>
+      <span class="sec-eyebrow">See it in action</span>
+      <h2>What booking with us looks like.</h2>
+      <p>A glimpse at the kind of jobs we handle — from parcels to pallets. <span style="color:rgba(255,255,255,0.4); font-size:13px;">(illustrative clips)</span></p>
     </div>
     <div class="road-scroll">
-      <div class="road-card"><div class="road-thumb road-video-wrap"><video class="road-video" src="gemini_generated_video_B39B65BB.mp4" playsinline muted loop preload="metadata"></video><span class="playbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#131E36"><path d="M8 5v14l11-7z"/></svg></span></div><div class="road-body"><span class="handle">@daveinleeds</span><p>Booked at 9am, sofa was at my mum's by lunch. Didn't think same-day was even possible.</p></div></div>
-      <div class="road-card"><div class="road-thumb road-video-wrap"><video class="road-video" src="gemini_generated_video_A0513AF5.mp4" playsinline muted loop preload="metadata"></video><span class="playbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#131E36"><path d="M8 5v14l11-7z"/></svg></span></div><div class="road-body"><span class="handle">@reema_moves</span><p>Tracked the whole thing on my phone and got a photo the second it arrived.</p></div></div>
-      <div class="road-card"><div class="road-thumb road-video-wrap"><video class="road-video" src="gemini_generated_video_CAE7FB33.mp4" playsinline muted loop preload="metadata"></video><span class="playbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#131E36"><path d="M8 5v14l11-7z"/></svg></span></div><div class="road-body"><span class="handle">@jamie_pallets</span><p>Needed a pallet moved same week — quoted and booked in under two minutes.</p></div></div>
-      <div class="road-card"><div class="road-thumb road-video-wrap"><video class="road-video" src="gemini_generated_video_499187E9.mp4" playsinline muted loop preload="metadata"></video><span class="playbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#131E36"><path d="M8 5v14l11-7z"/></svg></span></div><div class="road-body"><span class="handle">@salford_sam</span><p>Cheapest quote of the three apps I checked, and the courier was early.</p></div></div>
+      <div class="road-card"><div class="road-thumb road-video-wrap"><video class="road-video" src="gemini_generated_video_B39B65BB.mp4" playsinline muted loop preload="metadata"></video><span class="playbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#131E36"><path d="M8 5v14l11-7z"/></svg></span></div><div class="road-body"><span class="handle">Sofa delivery</span><p>Booked at 9am, delivered across town by lunch — same-day, start to finish.</p></div></div>
+      <div class="road-card"><div class="road-thumb road-video-wrap"><video class="road-video" src="gemini_generated_video_A0513AF5.mp4" playsinline muted loop preload="metadata"></video><span class="playbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#131E36"><path d="M8 5v14l11-7z"/></svg></span></div><div class="road-body"><span class="handle">Live tracking</span><p>Track the whole journey on your phone and get a photo the moment it arrives.</p></div></div>
+      <div class="road-card"><div class="road-thumb road-video-wrap"><video class="road-video" src="gemini_generated_video_CAE7FB33.mp4" playsinline muted loop preload="metadata"></video><span class="playbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#131E36"><path d="M8 5v14l11-7z"/></svg></span></div><div class="road-body"><span class="handle">Pallet &amp; freight</span><p>Get a pallet quoted and booked in under two minutes, no call needed.</p></div></div>
+      <div class="road-card"><div class="road-thumb road-video-wrap"><video class="road-video" src="gemini_generated_video_499187E9.mp4" playsinline muted loop preload="metadata"></video><span class="playbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#131E36"><path d="M8 5v14l11-7z"/></svg></span></div><div class="road-body"><span class="handle">Upfront pricing</span><p>See your price before you book — no surprises added on the day.</p></div></div>
     </div>
   </div>
 </section>
@@ -504,10 +535,10 @@
       <p>Most bookings on P Fanthoms are ordinary people sending a parcel or clearing a room — but plenty of businesses rely on us too. Whichever you are, same board, same prices.</p>
     </div>
     <div class="partner-grid">
-      <div class="partner-card"><div class="wordmark">🏠 Personal moves</div><p>Sofas, boxes, spare-room clear-outs — booked by thousands of individuals every week.</p></div>
-      <div class="partner-card"><div class="wordmark">Fernbridge Retail</div><p>Same-day store-to-store transfers whenever stock runs short.</p></div>
+      <div class="partner-card"><div class="wordmark">🏠 Personal moves</div><p>Sofas, boxes, spare-room clear-outs — booked by individuals every week.</p></div>
+      <div class="partner-card"><div class="wordmark">🏪 Retail &amp; stock transfers</div><p>Same-day store-to-store transfers whenever stock runs short.</p></div>
       <div class="partner-card"><div class="wordmark">🛒 Marketplace sellers</div><p>eBay, Vinted and Facebook Marketplace sales delivered without the trip to a post office.</p></div>
-      <div class="partner-card"><div class="wordmark">Northside Goods</div><p>Reliable next-day customer deliveries across Greater Manchester.</p></div>
+      <div class="partner-card"><div class="wordmark">📦 Regular customer runs</div><p>Reliable next-day customer deliveries for growing businesses.</p></div>
     </div>
   </div>
 </section>
@@ -535,10 +566,10 @@
       <p>No phone calls, no chasing updates, no second app for tracking.</p>
     </div>
     <div class="tiles">
-      <div class="tile"><div class="tile-art">💷</div><div class="tile-body"><h3>Get an instant price</h3><p>Tell us the pickup, drop-off and size of what's moving. See your price in under a minute.</p></div></div>
-      <div class="tile"><div class="tile-art">✅</div><div class="tile-body"><h3>Book &amp; get matched</h3><p>Choose your slot and we'll match you with a vetted, local courier — no back-and-forth.</p></div></div>
-      <div class="tile"><div class="tile-art">📍</div><div class="tile-body"><h3>Track live</h3><p>Watch your delivery move on the map in real time, from collection to drop-off.</p></div></div>
-      <div class="tile"><div class="tile-art">📸</div><div class="tile-body"><h3>Proof it arrived</h3><p>Get a photo the moment it's delivered, logged against your order automatically.</p></div></div>
+      <div class="tile"><div class="tile-art"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="tile-body"><h3>Get an instant price</h3><p>Tell us the pickup, drop-off and size of what's moving. See your price in under a minute.</p></div></div>
+      <div class="tile"><div class="tile-art"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><div class="tile-body"><h3>Book &amp; get matched</h3><p>Choose your slot and we'll match you with a vetted, local courier — no back-and-forth.</p></div></div>
+      <div class="tile"><div class="tile-art"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="tile-body"><h3>Track live</h3><p>Watch your delivery move on the map in real time, from collection to drop-off.</p></div></div>
+      <div class="tile"><div class="tile-art"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div><div class="tile-body"><h3>Proof it arrived</h3><p>Get a photo the moment it's delivered, logged against your order automatically.</p></div></div>
     </div>
   </div>
 </section>
@@ -658,7 +689,6 @@
           P FANTHOMS
         </div>
         <p style="max-width:280px; color:rgba(255,255,255,0.55); line-height:1.6;">The UK's flat-fee courier and freight exchange. Post it, quote it, drive it.</p>
-        <div class="foot-trust">★★★★★ <span style="color:rgba(255,255,255,0.6);">4.7 · 8,412 reviews</span></div>
       </div>
       <div>
         <h4>Product</h4>
@@ -670,12 +700,12 @@
       </div>
       <div>
         <h4>Support</h4>
-        <a href="help.html">Help centre</a><a href="trust-safety.html">Trust &amp; safety</a><a href="terms.html">Terms</a>
+        <a href="help.html">Help centre</a><a href="trust-safety.html">Trust &amp; safety</a><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a>
       </div>
     </div>
     <div class="press-row">
-      <span class="label">Proudly featured on:</span>
-      <span>The Logistics Gazette</span><span>Fleet &amp; Freight Weekly</span><span>North West Business Post</span>
+      <span class="label">Why book with us:</span>
+      <span>ID-checked couriers</span><span>Upfront pricing</span><span>Live tracking on every job</span>
     </div>
     <div class="foot-bottom">
       <span>© 2026 P Fanthoms Ltd. All rights reserved.</span>
@@ -684,7 +714,37 @@
   </div>
 </footer>
 
+<div id="cookie-banner" class="hidden">
+  <p>We use only essential cookies to keep you signed in — no tracking or ads. <a href="privacy.html">Read our privacy policy</a></p>
+  <button class="btn btn-primary" id="cookie-accept-btn">Got it</button>
+</div>
+
 <script>
+  // cookie consent banner (essential cookies only — no third-party tracking)
+  if (!localStorage.getItem('pf-cookie-ack')) {
+    document.getElementById('cookie-banner').classList.remove('hidden');
+  }
+  document.getElementById('cookie-accept-btn').addEventListener('click', () => {
+    localStorage.setItem('pf-cookie-ack', '1');
+    document.getElementById('cookie-banner').classList.add('hidden');
+  });
+
+  // mobile hamburger menu
+  const hamburgerBtn = document.getElementById('hamburger-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  if (hamburgerBtn && mobileMenu) {
+    hamburgerBtn.addEventListener('click', () => {
+      const isOpen = mobileMenu.classList.toggle('open');
+      hamburgerBtn.setAttribute('aria-expanded', isOpen);
+    });
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.remove('open');
+        hamburgerBtn.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
   document.querySelectorAll('.road-video-wrap').forEach(wrap => {
     const video = wrap.querySelector('video');
     if (!video) return;
