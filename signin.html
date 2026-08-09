@@ -73,7 +73,7 @@
   .switch-link{ text-align:center; margin-top:18px; font-size:14px; color:#777; }
   .switch-link a{ color:var(--orange-dark); font-weight:600; }
 
-  /* orders dashboard */
+  /* orders dashboard (customer) */
   .orders-section{ margin-top:30px; padding-top:26px; border-top:1px solid var(--line); }
   .orders-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; }
   .orders-title{ font-size:19px; color:var(--navy); font-family:'Archivo Black',sans-serif; }
@@ -101,6 +101,24 @@
 
   .order-status-line{ font-size:13px; color:#666; padding-top:14px; border-top:1px solid var(--line); }
   .order-status-line b{ color:var(--navy); }
+
+  /* courier dashboard */
+  .stat-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:8px; }
+  .stat-box{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; text-align:center; }
+  .stat-box .num{ font-family:'Archivo Black',sans-serif; font-size:24px; color:var(--navy); }
+  .stat-box .lbl{ font-size:11px; color:#888; font-family:'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:0.03em; margin-top:4px; }
+
+  .job-card{ position:relative; background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px 20px; margin-bottom:14px; box-shadow:0 8px 20px rgba(19,30,54,0.05); }
+  .job-card .order-top{ margin-bottom:10px; }
+  .job-actions{ display:flex; gap:10px; margin-top:14px; }
+  .job-actions button{ flex:1; padding:11px; border-radius:9px; font-size:13.5px; font-weight:600; border:none; cursor:pointer; }
+  .job-accept{ background:var(--green); color:#fff; }
+  .job-advance{ background:var(--orange); color:#fff; }
+  .job-taken-badge{ display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:4px 10px; border-radius:100px; background:var(--sand); color:#888; }
+
+  .courier-tabs{ display:flex; gap:8px; margin:26px 0 18px; }
+  .courier-tab{ padding:9px 16px; border-radius:100px; border:1.5px solid var(--line); background:#fff; font-size:13.5px; font-weight:600; color:#666; cursor:pointer; }
+  .courier-tab.active{ background:var(--navy); border-color:var(--navy); color:#fff; }
 </style>
 </head>
 <body>
@@ -189,13 +207,33 @@
       <div class="account-row"><span class="k">Email</span><span class="v" id="account-email">–</span></div>
       <div class="account-row"><span class="k">Member since</span><span class="v" id="account-since">–</span></div>
 
-      <div class="orders-section" id="customer-orders-section">
+      <!-- CUSTOMER: order tracking -->
+      <div class="orders-section" id="customer-orders-section" style="display:none;">
         <div class="orders-head">
           <h2 class="orders-title">Track your deliveries</h2>
           <span class="orders-count" id="orders-count"></span>
         </div>
         <div id="orders-list">
           <p class="orders-loading">Loading your orders…</p>
+        </div>
+      </div>
+
+      <!-- COURIER: jobs dashboard -->
+      <div class="orders-section" id="courier-jobs-section" style="display:none;">
+        <div class="orders-head">
+          <h2 class="orders-title">Courier dashboard</h2>
+        </div>
+        <div class="stat-row">
+          <div class="stat-box"><div class="num" id="courier-stat-active">0</div><div class="lbl">Active jobs</div></div>
+          <div class="stat-box"><div class="num" id="courier-stat-completed">0</div><div class="lbl">Completed</div></div>
+          <div class="stat-box"><div class="num" id="courier-stat-earnings">£0</div><div class="lbl">Earned</div></div>
+        </div>
+        <div class="courier-tabs">
+          <div class="courier-tab active" data-ctab="available">Available jobs</div>
+          <div class="courier-tab" data-ctab="mine">My jobs</div>
+        </div>
+        <div id="courier-jobs-list">
+          <p class="orders-loading">Loading jobs…</p>
         </div>
       </div>
 
@@ -340,7 +378,15 @@
     authView.style.display = 'none';
     accountView.classList.add('active');
 
-    loadOrders(user.id);
+    if (role === 'courier') {
+      document.getElementById('courier-jobs-section').style.display = 'block';
+      document.getElementById('customer-orders-section').style.display = 'none';
+      loadCourierJobs(user.id);
+    } else {
+      document.getElementById('customer-orders-section').style.display = 'block';
+      document.getElementById('courier-jobs-section').style.display = 'none';
+      loadOrders(user.id);
+    }
   }
 
   const TRACK_STAGES = ['Booked', 'Courier assigned', 'Picked up', 'In transit', 'Delivered'];
@@ -416,6 +462,127 @@
         </div>
       `;
     }).join('');
+  }
+
+  // ---------------- COURIER DASHBOARD ----------------
+  let courierUserId = null;
+  let courierTab = 'available';
+
+  async function loadCourierJobs(userId){
+    courierUserId = userId;
+    await refreshCourierStats(userId);
+    await renderCourierJobs();
+  }
+
+  async function refreshCourierStats(userId){
+    const { data: myOrders } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('courier_id', userId);
+
+    const orders = myOrders || [];
+    const active = orders.filter(o => o.status && o.status !== 'Delivered').length;
+    const completed = orders.filter(o => o.status === 'Delivered').length;
+    const earnings = orders
+      .filter(o => o.status === 'Delivered')
+      .reduce((sum, o) => sum + Number(o.price || 0), 0);
+
+    document.getElementById('courier-stat-active').textContent = active;
+    document.getElementById('courier-stat-completed').textContent = completed;
+    document.getElementById('courier-stat-earnings').textContent = '£' + earnings.toFixed(0);
+  }
+
+  document.querySelectorAll('.courier-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.courier-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      courierTab = tab.dataset.ctab;
+      renderCourierJobs();
+    });
+  });
+
+  async function renderCourierJobs(){
+    const listEl = document.getElementById('courier-jobs-list');
+    listEl.innerHTML = '<p class="orders-loading">Loading jobs…</p>';
+
+    let query = supabase.from('orders').select('*').order('created_at', { ascending: false });
+    if (courierTab === 'available') {
+      query = query.is('courier_id', null);
+    } else {
+      query = query.eq('courier_id', courierUserId);
+    }
+
+    const { data: jobs, error } = await query;
+
+    if (error) {
+      // courier_id column may not exist yet on older setups
+      listEl.innerHTML = '<p class="orders-empty">Jobs board isn\'t set up yet — ask your admin to add a courier_id column to the orders table.</p>';
+      return;
+    }
+
+    if (!jobs || jobs.length === 0) {
+      listEl.innerHTML = courierTab === 'available'
+        ? '<p class="orders-empty">No available jobs right now — check back soon.</p>'
+        : '<p class="orders-empty">You haven\'t picked up any jobs yet. Browse available jobs to get started.</p>';
+      return;
+    }
+
+    listEl.innerHTML = jobs.map(job => {
+      const date = new Date(job.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+      const status = job.status || 'Booked';
+
+      let actionsHtml = '';
+      if (courierTab === 'available') {
+        actionsHtml = `<div class="job-actions"><button class="job-accept" data-accept="${job.id}">Accept this job</button></div>`;
+      } else {
+        const nextStage = TRACK_STAGES[Math.min(TRACK_STAGES.indexOf(status) + 1, TRACK_STAGES.length - 1)];
+        if (status !== 'Delivered') {
+          actionsHtml = `<div class="job-actions"><button class="job-advance" data-advance="${job.id}" data-next="${nextStage}">Mark as: ${nextStage}</button></div>`;
+        } else {
+          actionsHtml = `<span class="job-taken-badge">✓ Completed</span>`;
+        }
+      }
+
+      return `
+        <div class="job-card">
+          <div class="order-top">
+            <div class="order-route">${escapeHtml(job.from_address)} → ${escapeHtml(job.to_address)}</div>
+            <div class="order-price">£${Number(job.price).toFixed(2)}</div>
+          </div>
+          <div class="order-meta">${escapeHtml(job.items || '')} · ${escapeHtml(job.vehicle || '')} · ${date}</div>
+          ${courierTab === 'mine' ? buildTracker(status) : `<span class="job-taken-badge">${escapeHtml(status)}</span>`}
+          ${actionsHtml}
+        </div>
+      `;
+    }).join('');
+
+    listEl.querySelectorAll('[data-accept]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        btn.textContent = 'Accepting…';
+        const { error } = await supabase
+          .from('orders')
+          .update({ courier_id: courierUserId, status: 'Courier assigned' })
+          .eq('id', btn.dataset.accept);
+        if (error) { alert('Could not accept job: ' + error.message); btn.disabled = false; return; }
+        await refreshCourierStats(courierUserId);
+        renderCourierJobs();
+      });
+    });
+
+    listEl.querySelectorAll('[data-advance]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        const nextStatus = btn.dataset.next;
+        const { error } = await supabase
+          .from('orders')
+          .update({ status: nextStatus })
+          .eq('id', btn.dataset.advance);
+        if (error) { alert('Could not update job: ' + error.message); btn.disabled = false; return; }
+        await refreshCourierStats(courierUserId);
+        renderCourierJobs();
+      });
+    });
   }
 
   function escapeHtml(str){
