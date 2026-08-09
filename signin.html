@@ -26,8 +26,18 @@
   .back-link{ color:rgba(255,255,255,0.7); font-size:14px; }
   .back-link:hover{ color:#fff; }
 
-  main{ padding:56px 0 80px; }
-  .card{ background:#fff; border-radius:22px; padding:36px 32px; box-shadow:0 20px 50px rgba(19,30,54,0.08); border:1px solid var(--line); }
+  main{ padding:0; min-height:calc(100vh - 66px); display:flex; }
+  .auth-shell{ display:flex; width:100%; }
+  .auth-brand-panel{ flex:1; background:var(--navy); color:#fff; display:flex; flex-direction:column; justify-content:center; padding:60px; position:relative; overflow:hidden; }
+  .auth-brand-panel::after{ content:""; position:absolute; right:-140px; bottom:-140px; width:420px; height:420px; border-radius:50%; background:radial-gradient(circle, rgba(255,94,44,0.3), transparent 70%); pointer-events:none; }
+  .auth-brand-panel h2{ font-size:32px; line-height:1.15; margin-bottom:16px; position:relative; z-index:1; max-width:380px; }
+  .auth-brand-panel p{ font-size:15px; color:rgba(255,255,255,0.65); line-height:1.6; max-width:340px; position:relative; z-index:1; }
+  .auth-brand-list{ margin-top:28px; display:flex; flex-direction:column; gap:14px; position:relative; z-index:1; }
+  .auth-brand-list div{ display:flex; align-items:center; gap:10px; font-size:14px; color:rgba(255,255,255,0.85); }
+  .auth-form-panel{ flex:1; display:flex; align-items:center; justify-content:center; padding:40px 24px; background:var(--sand); }
+  @media (max-width:900px){ .auth-brand-panel{ display:none; } main{ min-height:auto; } }
+
+  .card{ background:#fff; border-radius:22px; padding:36px 32px; box-shadow:0 20px 50px rgba(19,30,54,0.08); border:1px solid var(--line); width:100%; }
   #auth-view{ max-width:400px; margin:0 auto; }
   .card h1{ font-size:28px; color:var(--navy); margin-bottom:6px; }
   .card .sub{ font-size:14.5px; color:#777; margin-bottom:26px; }
@@ -140,7 +150,18 @@
   </div>
 </header>
 
-<main class="wrap">
+<main>
+ <div class="auth-shell">
+  <div class="auth-brand-panel">
+    <h2>Book, track, and manage every delivery in one place.</h2>
+    <p>Whether you're sending a parcel or driving the van, your account keeps everything organised.</p>
+    <div class="auth-brand-list">
+      <div>✅ Upfront pricing, no surprises</div>
+      <div>📍 Live tracking on every job</div>
+      <div>🛡️ ID-checked, insured couriers</div>
+    </div>
+  </div>
+  <div class="auth-form-panel">
   <div class="card">
 
     <!-- LOGGED OUT: sign in / sign up -->
@@ -243,6 +264,8 @@
     </div>
 
   </div>
+  </div>
+ </div>
 </main>
 
 <script type="module">
@@ -560,11 +583,21 @@
       btn.addEventListener('click', async () => {
         btn.disabled = true;
         btn.textContent = 'Accepting…';
-        const { error } = await supabase
+        // .is('courier_id', null) makes this an atomic "claim if still free" —
+        // if another courier accepted it first, zero rows match and update() returns none.
+        const { data: updated, error } = await supabase
           .from('orders')
           .update({ courier_id: courierUserId, status: 'Courier assigned' })
-          .eq('id', btn.dataset.accept);
-        if (error) { alert('Could not accept job: ' + error.message); btn.disabled = false; return; }
+          .eq('id', btn.dataset.accept)
+          .is('courier_id', null)
+          .select();
+
+        if (error) { alert('Could not accept job: ' + error.message); btn.disabled = false; btn.textContent = 'Accept this job'; return; }
+        if (!updated || updated.length === 0) {
+          alert('Sorry — another courier just took this job.');
+          renderCourierJobs();
+          return;
+        }
         await refreshCourierStats(courierUserId);
         renderCourierJobs();
       });
