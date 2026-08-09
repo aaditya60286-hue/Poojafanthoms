@@ -400,7 +400,10 @@
   })();
 
   // STEP 3: real UK address lookup via Ideal Postcodes (Royal Mail PAF licensed data)
-  const IDEAL_POSTCODES_API_KEY = 'ak_mshxcvhbyvOCkBTHcruw7X23hBMcI';
+  // Routed through a Supabase Edge Function so the API key stays server-side.
+  // See supabase-function/index.ts for the one-time deploy steps.
+  // Replace YOUR-PROJECT-REF below with your actual Supabase project ref.
+  const POSTCODE_LOOKUP_URL = 'https://YOUR-PROJECT-REF.supabase.co/functions/v1/postcode-lookup';
   const pcState = {
     from: { valid:false, chosenAddress:'', lat:null, lng:null },
     to:   { valid:false, chosenAddress:'', lat:null, lng:null }
@@ -435,7 +438,7 @@
     status.className = 'pc-status loading';
 
     try {
-      const url = 'https://api.ideal-postcodes.co.uk/v1/postcodes/' + encodeURIComponent(pc) + '?api_key=' + IDEAL_POSTCODES_API_KEY;
+      const url = POSTCODE_LOOKUP_URL + '?postcode=' + encodeURIComponent(pc);
       const res = await fetch(url);
       const data = await res.json();
 
