@@ -52,7 +52,7 @@
   .field input:focus{ outline:none; border-color:var(--orange); }
 
   .role-row{ display:flex; gap:10px; margin-bottom:22px; }
-  .role-chip{ flex:1; text-align:center; padding:14px 10px; border-radius:12px; border:2px solid var(--line); cursor:pointer; font-size:14px; font-weight:600; color:#666; }
+  .role-chip{ flex:1; text-align:center; padding:14px 10px; border-radius:12px; border:2px solid var(--line); cursor:pointer; font-size:14px; font-weight:600; color:#666; background:#fff; font-family:inherit; }
   .role-chip .ic{ font-size:22px; display:block; margin-bottom:6px; }
   .role-chip.selected{ border-color:var(--orange); background:#FFF4EE; color:var(--navy); }
 
@@ -127,7 +127,7 @@
   .job-taken-badge{ display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:4px 10px; border-radius:100px; background:var(--sand); color:#888; }
 
   .courier-tabs{ display:flex; gap:8px; margin:26px 0 18px; }
-  .courier-tab{ padding:9px 16px; border-radius:100px; border:1.5px solid var(--line); background:#fff; font-size:13.5px; font-weight:600; color:#666; cursor:pointer; }
+  .courier-tab{ padding:9px 16px; border-radius:100px; border:1.5px solid var(--line); background:#fff; font-size:13.5px; font-weight:600; color:#666; cursor:pointer; font-family:inherit; }
   .courier-tab.active{ background:var(--navy); border-color:var(--navy); color:#fff; }
 </style>
 </head>
@@ -207,8 +207,8 @@
         <div class="field">
           <label>I'm signing up as a...</label>
           <div class="role-row">
-            <div class="role-chip selected" data-role="customer"><span class="ic">📦</span>Customer</div>
-            <div class="role-chip" data-role="courier"><span class="ic">🚐</span>Courier</div>
+            <button type="button" class="role-chip selected" data-role="customer" aria-pressed="true"><span class="ic">📦</span>Customer</button>
+            <button type="button" class="role-chip" data-role="courier" aria-pressed="false"><span class="ic">🚐</span>Courier</button>
           </div>
         </div>
         <button class="btn btn-primary" id="signup-btn">Create account</button>
@@ -250,8 +250,8 @@
           <div class="stat-box"><div class="num" id="courier-stat-earnings">£0</div><div class="lbl">Earned</div></div>
         </div>
         <div class="courier-tabs">
-          <div class="courier-tab active" data-ctab="available">Available jobs</div>
-          <div class="courier-tab" data-ctab="mine">My jobs</div>
+          <button type="button" class="courier-tab active" data-ctab="available" aria-pressed="true">Available jobs</button>
+          <button type="button" class="courier-tab" data-ctab="mine" aria-pressed="false">My jobs</button>
         </div>
         <div id="courier-jobs-list">
           <p class="orders-loading">Loading jobs…</p>
@@ -313,8 +313,9 @@
   let selectedRole = 'customer';
   document.querySelectorAll('.role-chip').forEach(chip => {
     chip.addEventListener('click', () => {
-      document.querySelectorAll('.role-chip').forEach(c => c.classList.remove('selected'));
+      document.querySelectorAll('.role-chip').forEach(c => { c.classList.remove('selected'); c.setAttribute('aria-pressed', 'false'); });
       chip.classList.add('selected');
+      chip.setAttribute('aria-pressed', 'true');
       selectedRole = chip.dataset.role;
     });
   });
@@ -517,8 +518,9 @@
 
   document.querySelectorAll('.courier-tab').forEach(tab => {
     tab.addEventListener('click', () => {
-      document.querySelectorAll('.courier-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.courier-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-pressed', 'false'); });
       tab.classList.add('active');
+      tab.setAttribute('aria-pressed', 'true');
       courierTab = tab.dataset.ctab;
       renderCourierJobs();
     });
