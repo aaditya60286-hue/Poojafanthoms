@@ -240,10 +240,11 @@
   .video-layout{ display:grid; grid-template-columns:0.9fr 1.3fr; gap:48px; align-items:center; }
   .video-layout h2{ font-size:34px; color:var(--navy); }
   .video-layout p{ font-size:16px; color:#555; line-height:1.65; margin:18px 0 26px; }
-  .video-thumb{ border-radius:18px; aspect-ratio:16/9; background:linear-gradient(135deg, var(--navy), #2A3F6B); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
-  .video-thumb::before{ content:"🚐"; position:absolute; font-size:130px; opacity:0.14; }
-  .video-thumb .playbtn{ width:66px; height:66px; border-radius:50%; background:rgba(255,255,255,0.95); display:flex; align-items:center; justify-content:center; z-index:1; }
+  .video-thumb{ border-radius:18px; aspect-ratio:16/9; background:var(--navy); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; cursor:pointer; }
+  .hero-video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:var(--navy); }
+  .video-thumb .playbtn{ width:66px; height:66px; border-radius:50%; background:rgba(255,255,255,0.95); display:flex; align-items:center; justify-content:center; z-index:1; transition:opacity .15s ease; }
   .video-thumb .playbtn svg{ margin-left:4px; }
+  .video-thumb.playing .playbtn{ opacity:0; pointer-events:none; }
   @media (max-width:900px){ .video-layout{ grid-template-columns:1fr; } }
 
   /* ---------- FAQ ACCORDION ---------- */
@@ -533,9 +534,12 @@
     <div>
       <h2>From your doorstep to theirs.</h2>
       <p>Parcels, pallets, furniture, a full house-move overflow — if it fits in a van, we can move it. See what booking looks like.</p>
-      <a href="#" class="btn btn-dark">Watch now</a>
+      <a href="#" class="btn btn-dark" id="hero-watch-btn">Watch now</a>
     </div>
-    <div class="video-thumb"><span class="playbtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="#131E36"><path d="M8 5v14l11-7z"/></svg></span></div>
+    <div class="video-thumb" id="hero-video-wrap">
+      <video class="hero-video" id="hero-video" src="poojafathoms-hero-combined.mp4" playsinline preload="metadata"></video>
+      <span class="playbtn" id="hero-playbtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="#131E36"><path d="M8 5v14l11-7z"/></svg></span>
+    </div>
   </div>
 </section>
 
@@ -681,6 +685,25 @@
     });
     video.addEventListener('pause', () => wrap.classList.remove('playing'));
   });
+
+  // hero "From your doorstep to theirs" video
+  const heroWrap = document.getElementById('hero-video-wrap');
+  const heroVideo = document.getElementById('hero-video');
+  const heroWatchBtn = document.getElementById('hero-watch-btn');
+
+  function toggleHeroVideo(e){
+    if (e) e.preventDefault();
+    if (heroVideo.paused) {
+      heroVideo.play();
+      heroWrap.classList.add('playing');
+    } else {
+      heroVideo.pause();
+      heroWrap.classList.remove('playing');
+    }
+  }
+  if (heroWrap) heroWrap.addEventListener('click', toggleHeroVideo);
+  if (heroWatchBtn) heroWatchBtn.addEventListener('click', toggleHeroVideo);
+  if (heroVideo) heroVideo.addEventListener('pause', () => heroWrap.classList.remove('playing'));
 </script>
 
 </body>
