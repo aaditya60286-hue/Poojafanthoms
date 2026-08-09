@@ -18,7 +18,7 @@
   a{ color:inherit; text-decoration:none; }
   .wrap{ max-width:840px; margin:0 auto; padding:0 24px; }
   button{ font-family:inherit; }
-  a:focus-visible, button:focus-visible{ outline:3px solid var(--orange); outline-offset:2px; }
+  a:focus-visible, button:focus-visible, .item-card:focus-visible, .veh-card:focus-visible{ outline:3px solid var(--orange); outline-offset:2px; }
 
   /* header */
   header{ background:var(--navy); border-bottom:3px solid var(--orange); padding:16px 0; }
@@ -52,7 +52,8 @@
   .item-card{ background:#fff; border:2px solid var(--line); border-radius:16px; padding:18px 14px; text-align:center; cursor:pointer; transition:border-color .15s, transform .1s; position:relative; }
   .item-card:hover{ transform:translateY(-2px); }
   .item-card.selected{ border-color:var(--orange); background:#FFF4EE; }
-  .item-card .ic{ font-size:32px; margin-bottom:8px; }
+  .item-card .ic{ font-size:26px; margin:0 auto 10px; width:52px; height:52px; border-radius:14px; background:var(--sand); display:flex; align-items:center; justify-content:center; }
+  .item-card.selected .ic{ background:#FFE4D6; }
   .item-card .lbl{ font-size:13.5px; font-weight:600; color:var(--navy); }
   .item-card .check{ position:absolute; top:8px; right:8px; width:20px; height:20px; border-radius:50%; background:var(--orange); color:#fff; display:none; align-items:center; justify-content:center; font-size:12px; }
   .item-card.selected .check{ display:flex; }
@@ -167,25 +168,25 @@
       <button class="cat-tab" data-cat="business">🏢 Business</button>
     </div>
 
-    <div class="item-grid" id="grid-household">
-      <div class="item-card" data-item="Sofa"><span class="check">✓</span><div class="ic">🛋️</div><div class="lbl">Sofa</div></div>
-      <div class="item-card" data-item="Bed & mattress"><span class="check">✓</span><div class="ic">🛏️</div><div class="lbl">Bed &amp; mattress</div></div>
-      <div class="item-card" data-item="Wardrobe"><span class="check">✓</span><div class="ic">🚪</div><div class="lbl">Wardrobe</div></div>
-      <div class="item-card" data-item="Fridge / freezer"><span class="check">✓</span><div class="ic">🧊</div><div class="lbl">Fridge / freezer</div></div>
-      <div class="item-card" data-item="Washing machine"><span class="check">✓</span><div class="ic">🌀</div><div class="lbl">Washing machine</div></div>
-      <div class="item-card" data-item="TV & electronics"><span class="check">✓</span><div class="ic">📺</div><div class="lbl">TV &amp; electronics</div></div>
-      <div class="item-card" data-item="Dining table & chairs"><span class="check">✓</span><div class="ic">🪑</div><div class="lbl">Dining table &amp; chairs</div></div>
-      <div class="item-card" data-item="Boxes"><span class="check">✓</span><div class="ic">📦</div><div class="lbl">Boxes</div></div>
-      <div class="item-card" data-item="Bike"><span class="check">✓</span><div class="ic">🚲</div><div class="lbl">Bike</div></div>
+    <div class="item-grid" id="grid-household" role="group" aria-label="Household items">
+      <div class="item-card" data-item="Sofa" tabindex="0" role="checkbox" aria-checked="false"><span class="check">✓</span><div class="ic">🛋️</div><div class="lbl">Sofa</div></div>
+      <div class="item-card" data-item="Bed & mattress" tabindex="0" role="checkbox" aria-checked="false"><span class="check">✓</span><div class="ic">🛏️</div><div class="lbl">Bed &amp; mattress</div></div>
+      <div class="item-card" data-item="Wardrobe" tabindex="0" role="checkbox" aria-checked="false"><span class="check">✓</span><div class="ic">🚪</div><div class="lbl">Wardrobe</div></div>
+      <div class="item-card" data-item="Fridge / freezer" tabindex="0" role="checkbox" aria-checked="false"><span class="check">✓</span><div class="ic">🧊</div><div class="lbl">Fridge / freezer</div></div>
+      <div class="item-card" data-item="Washing machine" tabindex="0" role="checkbox" aria-checked="false"><span class="check">✓</span><div class="ic">🌀</div><div class="lbl">Washing machine</div></div>
+      <div class="item-card" data-item="TV & electronics" tabindex="0" role="checkbox" aria-checked="false"><span class="check">✓</span><div class="ic">📺</div><div class="lbl">TV &amp; electronics</div></div>
+      <div class="item-card" data-item="Dining table & chairs" tabindex="0" role="checkbox" aria-checked="false"><span class="check">✓</span><div class="ic">🪑</div><div class="lbl">Dining table &amp; chairs</div></div>
+      <div class="item-card" data-item="Boxes" tabindex="0" role="checkbox" aria-checked="false"><span class="check">✓</span><div class="ic">📦</div><div class="lbl">Boxes</div></div>
+      <div class="item-card" data-item="Bike" tabindex="0" role="checkbox" aria-checked="false"><span class="check">✓</span><div class="ic">🚲</div><div class="lbl">Bike</div></div>
     </div>
 
-    <div class="item-grid" id="grid-business" style="display:none;">
-      <div class="item-card" data-item="Pallet"><span class="check">✓</span><div class="ic">🧱</div><div class="lbl">Pallet</div></div>
-      <div class="item-card" data-item="Office desk & chair"><span class="check">✓</span><div class="ic">🪑</div><div class="lbl">Office desk &amp; chair</div></div>
-      <div class="item-card" data-item="Filing cabinet"><span class="check">✓</span><div class="ic">🗄️</div><div class="lbl">Filing cabinet</div></div>
-      <div class="item-card" data-item="Retail stock boxes"><span class="check">✓</span><div class="ic">🛍️</div><div class="lbl">Retail stock boxes</div></div>
-      <div class="item-card" data-item="Parcels / packages"><span class="check">✓</span><div class="ic">📮</div><div class="lbl">Parcels / packages</div></div>
-      <div class="item-card" data-item="Equipment / tools"><span class="check">✓</span><div class="ic">🧰</div><div class="lbl">Equipment / tools</div></div>
+    <div class="item-grid" id="grid-business" style="display:none;" role="group" aria-label="Business items">
+      <div class="item-card" data-item="Pallet" tabindex="0" role="checkbox" aria-checked="false"><span class="check">✓</span><div class="ic">🧱</div><div class="lbl">Pallet</div></div>
+      <div class="item-card" data-item="Office desk & chair" tabindex="0" role="checkbox" aria-checked="false"><span class="check">✓</span><div class="ic">🪑</div><div class="lbl">Office desk &amp; chair</div></div>
+      <div class="item-card" data-item="Filing cabinet" tabindex="0" role="checkbox" aria-checked="false"><span class="check">✓</span><div class="ic">🗄️</div><div class="lbl">Filing cabinet</div></div>
+      <div class="item-card" data-item="Retail stock boxes" tabindex="0" role="checkbox" aria-checked="false"><span class="check">✓</span><div class="ic">🛍️</div><div class="lbl">Retail stock boxes</div></div>
+      <div class="item-card" data-item="Parcels / packages" tabindex="0" role="checkbox" aria-checked="false"><span class="check">✓</span><div class="ic">📮</div><div class="lbl">Parcels / packages</div></div>
+      <div class="item-card" data-item="Equipment / tools" tabindex="0" role="checkbox" aria-checked="false"><span class="check">✓</span><div class="ic">🧰</div><div class="lbl">Equipment / tools</div></div>
     </div>
 
     <div class="selected-count" id="selected-count">0 items selected</div>
@@ -199,25 +200,25 @@
   <section class="panel" id="panel-2">
     <h2>Choose your vehicle</h2>
     <p class="sub">Not sure? Pick your best guess — we'll confirm the right size when you book.</p>
-    <div class="veh-grid">
-      <div class="veh-card" data-veh="Car" data-price="0">
-        <div class="ic">🚗</div><div class="lbl">Car</div>
+    <div class="veh-grid" role="radiogroup" aria-label="Choose your vehicle">
+      <div class="veh-card" data-veh="Car" data-price="0" tabindex="0" role="radio" aria-checked="false" aria-label="Car — a few small boxes or bags, nothing bulky">
+        <div class="ic"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M5 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm14 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0zM3 17V9l2-5h14l2 5v8"/></svg></div><div class="lbl">Car</div>
         <div class="desc">A few small boxes or bags, nothing bulky.</div>
       </div>
-      <div class="veh-card" data-veh="Small van" data-price="10">
-        <div class="ic">🚐</div><div class="lbl">Small van</div>
+      <div class="veh-card" data-veh="Small van" data-price="10" tabindex="0" role="radio" aria-checked="false" aria-label="Small van — a sofa, a few boxes, or a single large item">
+        <div class="ic"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 3h13v13H1z"/><path d="M14 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="17.5" cy="18.5" r="2.5"/></svg></div><div class="lbl">Small van</div>
         <div class="desc">A sofa, a few boxes, or a single large item.</div>
       </div>
-      <div class="veh-card" data-veh="Large van" data-price="25">
-        <div class="ic">🚚</div><div class="lbl">Large van</div>
+      <div class="veh-card" data-veh="Large van" data-price="25" tabindex="0" role="radio" aria-checked="false" aria-label="Large van — a room's worth of furniture or several pallets">
+        <div class="ic"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="6" cy="18.5" r="2.5"/><circle cx="19" cy="18.5" r="2.5"/></svg></div><div class="lbl">Large van</div>
         <div class="desc">A room's worth of furniture or several pallets.</div>
       </div>
-      <div class="veh-card" data-veh="Luton / truck" data-price="40">
-        <div class="ic">🚛</div><div class="lbl">Luton / truck</div>
+      <div class="veh-card" data-veh="Luton / truck" data-price="40" tabindex="0" role="radio" aria-checked="false" aria-label="Luton or truck — a full house move or a large business load">
+        <div class="ic"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="15" height="13" rx="1"/><path d="M16 9h4l3 3v5h-7V9z"/><circle cx="6" cy="18.5" r="2.3"/><circle cx="19" cy="18.5" r="2.3"/></svg></div><div class="lbl">Luton / truck</div>
         <div class="desc">A full house move or a large business load.</div>
       </div>
-      <div class="veh-card" data-veh="Other" data-price="15">
-        <div class="ic">❓</div><div class="lbl">Other</div>
+      <div class="veh-card" data-veh="Other" data-price="15" tabindex="0" role="radio" aria-checked="false" aria-label="Other — not listed, tell us what you need">
+        <div class="ic"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.1 9a3 3 0 0 1 5.82 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="var(--navy)"/><circle cx="12" cy="12" r="10"/></svg></div><div class="lbl">Other</div>
         <div class="desc">Not listed? Tell us what you need.</div>
       </div>
     </div>
@@ -241,7 +242,7 @@
         <input type="text" id="from-postcode" placeholder="e.g. M1 2AB" autocapitalize="characters">
         <button type="button" class="btn btn-ghost pc-check-btn" id="from-postcode-check">Find address</button>
       </div>
-      <div class="pc-status" id="from-postcode-status"></div>
+      <div class="pc-status" id="from-postcode-status" role="status" aria-live="polite"></div>
       <select id="from-address-select" class="addr-select" style="display:none;"></select>
     </div>
 
@@ -251,7 +252,7 @@
         <input type="text" id="to-postcode" placeholder="e.g. LS1 4DT" autocapitalize="characters">
         <button type="button" class="btn btn-ghost pc-check-btn" id="to-postcode-check">Find address</button>
       </div>
-      <div class="pc-status" id="to-postcode-status"></div>
+      <div class="pc-status" id="to-postcode-status" role="status" aria-live="polite"></div>
       <select id="to-address-select" class="addr-select" style="display:none;"></select>
     </div>
 
@@ -348,30 +349,47 @@
   });
 
   // STEP 1: item selection
+  function toggleItemCard(card){
+    const item = card.dataset.item;
+    card.classList.toggle('selected');
+    const isSelected = card.classList.contains('selected');
+    card.setAttribute('aria-checked', isSelected);
+    if (isSelected) {
+      state.items.push(item);
+    } else {
+      state.items = state.items.filter(i => i !== item);
+    }
+    document.getElementById('selected-count').textContent = state.items.length + (state.items.length === 1 ? ' item selected' : ' items selected');
+    document.getElementById('to-step-2').disabled = state.items.length === 0;
+  }
   document.querySelectorAll('.item-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const item = card.dataset.item;
-      card.classList.toggle('selected');
-      if (card.classList.contains('selected')) {
-        state.items.push(item);
-      } else {
-        state.items = state.items.filter(i => i !== item);
+    card.addEventListener('click', () => toggleItemCard(card));
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleItemCard(card);
       }
-      document.getElementById('selected-count').textContent = state.items.length + (state.items.length === 1 ? ' item selected' : ' items selected');
-      document.getElementById('to-step-2').disabled = state.items.length === 0;
     });
   });
   document.getElementById('to-step-2').addEventListener('click', () => showPanel(2));
 
   // STEP 2: vehicle selection
+  function selectVehCard(card){
+    document.querySelectorAll('.veh-card').forEach(c => { c.classList.remove('selected'); c.setAttribute('aria-checked', 'false'); });
+    card.classList.add('selected');
+    card.setAttribute('aria-checked', 'true');
+    state.vehicle = card.dataset.veh;
+    state.vehiclePrice = parseInt(card.dataset.price, 10);
+    document.getElementById('other-input-wrap').style.display = state.vehicle === 'Other' ? 'block' : 'none';
+    document.getElementById('to-step-3').disabled = false;
+  }
   document.querySelectorAll('.veh-card').forEach(card => {
-    card.addEventListener('click', () => {
-      document.querySelectorAll('.veh-card').forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-      state.vehicle = card.dataset.veh;
-      state.vehiclePrice = parseInt(card.dataset.price, 10);
-      document.getElementById('other-input-wrap').style.display = state.vehicle === 'Other' ? 'block' : 'none';
-      document.getElementById('to-step-3').disabled = false;
+    card.addEventListener('click', () => selectVehCard(card));
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectVehCard(card);
+      }
     });
   });
   document.getElementById('other-vehicle-text').addEventListener('input', (e) => { state.otherText = e.target.value; });
