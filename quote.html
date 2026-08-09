@@ -115,20 +115,14 @@
   .confirm-box h2{ font-size:28px; color:var(--navy); margin-bottom:10px; }
   .confirm-box p{ font-size:15px; color:#666; max-width:400px; margin:0 auto 26px; line-height:1.6; }
 
-  /* auth gate overlay */
-  #auth-gate{ position:fixed; inset:0; background:var(--sand); z-index:999; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px; }
-  #auth-gate .spinner{ width:34px; height:34px; border-radius:50%; border:3px solid var(--line); border-top-color:var(--orange); animation:spin 0.8s linear infinite; }
-  @keyframes spin{ to{ transform:rotate(360deg); } }
-  #auth-gate p{ font-size:14px; color:#888; font-family:'IBM Plex Mono',monospace; }
-  body.gated main{ visibility:hidden; }
+  /* login-required step (shown before payment, not at page start) */
+  .login-required{ text-align:center; padding:50px 20px; }
+  .login-required .lockicon{ width:64px; height:64px; border-radius:50%; background:var(--sand); display:flex; align-items:center; justify-content:center; margin:0 auto 20px; }
+  .login-required h2{ font-size:24px; color:var(--navy); margin-bottom:10px; }
+  .login-required p{ font-size:15px; color:#666; max-width:380px; margin:0 auto 22px; line-height:1.6; }
 </style>
 </head>
-<body class="gated">
-
-<div id="auth-gate">
-  <div class="spinner"></div>
-  <p>Checking your account…</p>
-</div>
+<body>
 
 <header>
   <div class="wrap head-row">
@@ -280,6 +274,21 @@
     </div>
   </section>
 
+  <!-- STEP 5: LOGIN REQUIRED (only shown right before payment/confirmation) -->
+  <section class="panel" id="panel-login">
+    <div class="login-required">
+      <div class="lockicon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#131E36" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+      </div>
+      <h2>One last step — log in to confirm</h2>
+      <p>Your price is locked in at <b id="login-price-preview" style="color:var(--navy);">£0.00</b>. Log in or create a free account to complete your booking and track it live.</p>
+      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <a href="#" class="btn btn-primary" id="go-login-btn" style="width:auto; padding:14px 26px;">Log in / sign up</a>
+        <button class="btn btn-ghost" id="back-to-4-from-login" style="width:auto; padding:14px 26px;">← Back to price</button>
+      </div>
+    </div>
+  </section>
+
   <!-- CONFIRMATION -->
   <section class="panel" id="panel-5">
     <div class="confirm-box">
@@ -303,18 +312,8 @@
     'sb_publishable_dgxPA7kUrbNbk9q25qA0lA_Xb0n83_D'
   );
   window.supabase = supabase;
-
-  const { data } = await supabase.auth.getSession();
-
-  if (!data.session) {
-    // not logged in — send to the login page, bring them straight back here afterwards
-    const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
-    window.location.href = 'signin.html?redirect=' + returnTo;
-  } else {
-    // logged in — reveal the page
-    document.body.classList.remove('gated');
-    document.getElementById('auth-gate').style.display = 'none';
-  }
+  // Browsing and pricing don't require an account — login is only requested
+  // right before confirming a booking (see the confirm-booking handler below).
 </script>
 
 <script>
@@ -327,12 +326,19 @@
     2: 'Step 2 of 4 — Choose your vehicle',
     3: 'Step 3 of 4 — Pickup & drop-off',
     4: 'Step 4 of 4 — Your price',
+    login: 'Almost there — log in to confirm',
     5: 'Booked'
   };
 
   function showPanel(n){
-    panels.forEach(p => document.getElementById('panel-'+p).classList.toggle('active', p === n));
-    steps.forEach((s, i) => s.classList.toggle('done', i < n));
+    panels.forEach(p => document.getElementById('panel-'+p).classList.remove('active'));
+    document.getElementById('panel-login').classList.remove('active');
+    if (n === 'login') {
+      document.getElementById('panel-login').classList.add('active');
+    } else {
+      document.getElementById('panel-'+n).classList.add('active');
+    }
+    steps.forEach((s, i) => s.classList.toggle('done', typeof n === 'number' && i < n));
     label.textContent = labels[n] || '';
     window.scrollTo({top:0, behavior:'smooth'});
   }
@@ -561,19 +567,50 @@
 
   document.getElementById('back-to-3').addEventListener('click', () => showPanel(3));
 
+  const QUOTE_STATE_KEY = 'pf_quote_pending_state';
+
+  function saveStateForLogin(){
+    sessionStorage.setItem(QUOTE_STATE_KEY, JSON.stringify({
+      state,
+      pcFrom: pcState.from,
+      pcTo: pcState.to
+    }));
+  }
+
   document.getElementById('confirm-booking').addEventListener('click', async () => {
     const btn = document.getElementById('confirm-booking');
     btn.disabled = true;
-    btn.textContent = 'Saving your booking…';
+    btn.textContent = 'Checking…';
 
     const { data: sessionData } = await window.supabase.auth.getSession();
     const user = sessionData.session ? sessionData.session.user : null;
 
+    btn.disabled = false;
+    btn.textContent = 'Confirm booking';
+
     if (!user) {
-      // session expired mid-booking — send back to login, then straight back here
-      window.location.href = 'signin.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+      // not logged in — show the login-required step right here, last, before we'd save/pay
+      document.getElementById('login-price-preview').textContent = document.getElementById('sum-price').textContent;
+      saveStateForLogin();
+      showPanel('login');
       return;
     }
+
+    await saveOrder(user);
+  });
+
+  document.getElementById('back-to-4-from-login').addEventListener('click', () => showPanel(4));
+
+  document.getElementById('go-login-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    saveStateForLogin();
+    window.location.href = 'signin.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+  });
+
+  async function saveOrder(user){
+    const btn = document.getElementById('confirm-booking');
+    btn.disabled = true;
+    btn.textContent = 'Saving your booking…';
 
     const { error } = await window.supabase.from('orders').insert({
       user_id: user.id,
@@ -592,10 +629,35 @@
       return;
     }
 
+    sessionStorage.removeItem(QUOTE_STATE_KEY);
     btn.disabled = false;
     btn.textContent = 'Confirm booking';
     showPanel(5);
-  });
+  }
+
+  // If we're arriving back from signin.html after a mid-booking login,
+  // restore the in-progress quote and pick up right where they left off.
+  (function restoreStateAfterLogin(){
+    const saved = sessionStorage.getItem(QUOTE_STATE_KEY);
+    if (!saved) return;
+    try {
+      const parsed = JSON.parse(saved);
+      Object.assign(state, parsed.state);
+      Object.assign(pcState.from, parsed.pcFrom);
+      Object.assign(pcState.to, parsed.pcTo);
+      buildSummary();
+      showPanel(4);
+
+      // if they're now logged in, finish the booking automatically
+      window.supabase.auth.getSession().then(({ data }) => {
+        if (data.session && data.session.user) {
+          saveOrder(data.session.user);
+        }
+      });
+    } catch (e) {
+      sessionStorage.removeItem(QUOTE_STATE_KEY);
+    }
+  })();
 </script>
 
 </body>
