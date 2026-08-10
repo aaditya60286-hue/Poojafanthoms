@@ -595,7 +595,7 @@
       return;
     }
 
-    await saveOrder(user);
+    await goToPayment(user);
   });
 
   document.getElementById('back-to-4-from-login').addEventListener('click', () => showPanel(4));
@@ -606,33 +606,73 @@
     window.location.href = 'signin.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
   });
 
-  async function saveOrder(user){
+  const CHECKOUT_SESSION_URL = 'https://urdhtrsxbetijzaxlhxu.supabase.co/functions/v1/create-checkout-session';
+  const CONFIRM_BOOKING_URL = 'https://urdhtrsxbetijzaxlhxu.supabase.co/functions/v1/confirm-booking';
+
+  async function goToPayment(user){
     const btn = document.getElementById('confirm-booking');
     btn.disabled = true;
-    btn.textContent = 'Saving your booking…';
+    btn.textContent = 'Redirecting to payment…';
 
-    const { error } = await window.supabase.from('orders').insert({
-      user_id: user.id,
-      items: state.items.join(', '),
-      vehicle: state.vehicleLabel,
-      from_address: state.from,
-      to_address: state.to,
-      price: state.finalPrice,
-      status: 'Booked'
-    });
+    const baseUrl = window.location.origin + window.location.pathname;
+    const successUrl = baseUrl + '?paid=1&session_id={CHECKOUT_SESSION_ID}';
+    const cancelUrl = baseUrl;
 
-    if (error) {
+    try {
+      const res = await fetch(CHECKOUT_SESSION_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: state.items.join(', '),
+          vehicle: state.vehicleLabel,
+          from: state.from,
+          to: state.to,
+          price: state.finalPrice,
+          user_id: user.id,
+          success_url: successUrl,
+          cancel_url: cancelUrl
+        })
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.url) {
+        throw new Error(data.error || 'Could not start payment');
+      }
+
+      sessionStorage.removeItem(QUOTE_STATE_KEY);
+      window.location.href = data.url; // off to Stripe's hosted checkout page
+    } catch (err) {
       btn.disabled = false;
       btn.textContent = 'Confirm booking';
-      alert("Something went wrong saving your booking: " + error.message);
-      return;
+      alert('Something went wrong starting payment: ' + err.message);
     }
-
-    sessionStorage.removeItem(QUOTE_STATE_KEY);
-    btn.disabled = false;
-    btn.textContent = 'Confirm booking';
-    showPanel(5);
   }
+
+  // If Stripe just redirected us back here after a successful payment,
+  // verify it server-side and show the confirmation screen.
+  (async function checkForPaymentReturn(){
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('paid') !== '1') return;
+    const sessionId = params.get('session_id');
+    if (!sessionId) return;
+
+    showPanel(4); // sensible fallback view while we confirm
+    document.getElementById('confirm-booking').disabled = true;
+    document.getElementById('confirm-booking').textContent = 'Confirming your payment…';
+
+    try {
+      const res = await fetch(CONFIRM_BOOKING_URL + '?session_id=' + encodeURIComponent(sessionId));
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Could not confirm payment');
+      }
+      // clean the URL so a refresh doesn't try to re-confirm
+      window.history.replaceState({}, '', window.location.pathname);
+      showPanel(5);
+    } catch (err) {
+      alert("We couldn't confirm your payment automatically: " + err.message + "\n\nIf you were charged, please contact support with your payment reference.");
+    }
+  })();
 
   // If we're arriving back from signin.html after a mid-booking login,
   // restore the in-progress quote and pick up right where they left off.
@@ -647,10 +687,10 @@
       buildSummary();
       showPanel(4);
 
-      // if they're now logged in, finish the booking automatically
+      // if they're now logged in, go straight to payment
       window.supabase.auth.getSession().then(({ data }) => {
         if (data.session && data.session.user) {
-          saveOrder(data.session.user);
+          goToPayment(data.session.user);
         }
       });
     } catch (e) {
