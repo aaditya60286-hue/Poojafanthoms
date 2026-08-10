@@ -11,18 +11,12 @@ create table if not exists public.orders (
   from_address text,
   to_address text,
   price numeric,
-  status text default 'Booked',
-  stripe_session_id text
+  status text default 'Booked'
 );
 
--- If you already created this table before courier/payment support was added,
--- these add the missing columns without touching existing data.
+-- If you already created this table before courier support was added,
+-- this adds the missing column without touching existing data.
 alter table public.orders add column if not exists courier_id uuid references auth.users(id);
-alter table public.orders add column if not exists stripe_session_id text;
-
--- Prevents a page refresh on the success page from creating a duplicate order
--- for the same Stripe payment.
-create unique index if not exists orders_stripe_session_id_key on public.orders(stripe_session_id) where stripe_session_id is not null;
 
 -- Lock the table down
 alter table public.orders enable row level security;
