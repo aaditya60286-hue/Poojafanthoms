@@ -347,6 +347,13 @@
     }
     showMessage('Account created! Check your email to confirm, then sign in.', 'success');
     showSignin();
+
+    // Fire off a welcome email — best-effort, never blocks the signup flow.
+    fetch('https://urdhtrsxbetijzaxlhxu.supabase.co/functions/v1/send-welcome-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, name, role: selectedRole })
+    }).catch(() => { /* ignore — welcome email is a nice-to-have, not critical */ });
   });
 
   // read ?redirect= from the URL, e.g. signin.html?redirect=quote.html
